@@ -12,7 +12,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  /*
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login");
@@ -26,7 +25,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  */
 
   return (
     <SidebarProvider>
