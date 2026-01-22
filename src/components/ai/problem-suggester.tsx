@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { suggestLeetCodeProblems, SuggestLeetCodeProblemsOutput } from "@/ai/flows/suggest-leetcode-problems";
-import { getAllUserProblems } from "@/app/actions";
+import { getAllUserProblems } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Lightbulb, ExternalLink, BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 
 const formSchema = z.object({
@@ -31,6 +33,7 @@ export function AIProblemSuggester() {
   const [suggestions, setSuggestions] = useState<SuggestLeetCodeProblemsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,12 +44,16 @@ export function AIProblemSuggester() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) {
+        setError("You must be logged in to get suggestions.");
+        return;
+    }
     setIsLoading(true);
     setError(null);
     setSuggestions(null);
 
     try {
-      const bucketHistory = await getAllUserProblems();
+      const bucketHistory = await getAllUserProblems(user.uid);
       const result = await suggestLeetCodeProblems({
         ...values,
         bucketHistory,
@@ -80,7 +87,7 @@ export function AIProblemSuggester() {
                             <Label htmlFor="numberOfProblems">Number of Problems</Label>
                             <Input id="numberOfProblems" type="number" {...form.register("numberOfProblems")} />
                         </div>
-                        <Button type="submit" disabled={isLoading} className="w-full">
+                        <Button type="submit" disabled={isLoading || !user} className="w-full">
                             {isLoading ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (

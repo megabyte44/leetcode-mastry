@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Topic, TopicQuestion, TopicNote, QuestionStatus, questionStatuses } from "@/lib/types";
 import {
   Card,
@@ -17,15 +18,31 @@ interface TopicDetailsProps {
   initialTopic: Topic;
   initialQuestions: TopicQuestion[];
   initialNotes: TopicNote[];
+  onDataRefresh: () => void;
 }
 
 export default function TopicDetails({
   initialTopic,
   initialQuestions,
+  initialNotes,
+  onDataRefresh,
 }: TopicDetailsProps) {
   const [topic, setTopic] = useState(initialTopic);
   const [questions, setQuestions] = useState(initialQuestions);
+  const [notes, setNotes] = useState(initialNotes);
   const [activeTab, setActiveTab] = useState<"questions" | "notes">("questions");
+
+  useEffect(() => {
+    setTopic(initialTopic);
+  }, [initialTopic]);
+
+  useEffect(() => {
+    setQuestions(initialQuestions);
+  }, [initialQuestions]);
+
+  useEffect(() => {
+    setNotes(initialNotes);
+  }, [initialNotes]);
 
   return (
     <div className="space-y-6">
@@ -40,7 +57,7 @@ export default function TopicDetails({
           <TabsTrigger value="notes" disabled>Notes (Coming Soon)</TabsTrigger>
         </TabsList>
         <TabsContent value="questions">
-          <QuestionList questions={questions} topicId={topic.id} />
+          <QuestionList questions={questions} topicId={topic.id} onDataRefresh={onDataRefresh} />
         </TabsContent>
         <TabsContent value="notes">
           <Card>

@@ -1,7 +1,7 @@
-"use server";
 
-import { revalidatePath } from "next/cache";
-import { auth, db } from "@/lib/firebase";
+"use client";
+
+import { db } from "@/lib/firebase";
 import {
   collection,
   addDoc,
@@ -14,6 +14,7 @@ import {
   deleteDoc,
   writeBatch,
   getDoc,
+  orderBy,
 } from "firebase/firestore";
 import {
   Topic,
@@ -22,18 +23,9 @@ import {
   TopicNote,
 } from "@/lib/types";
 
-// Helper to get current user ID
-async function getUserId() {
-  const currentUser = auth.currentUser;
-  if (!currentUser) {
-    throw new Error("User not authenticated");
-  }
-  return currentUser.uid;
-}
 
 // Topics Actions
-export async function addTopic(formData: FormData) {
-  const userId = await getUserId();
+export async function addTopic(userId: string, formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
 
@@ -46,12 +38,9 @@ export async function addTopic(formData: FormData) {
     description,
     createdAt: serverTimestamp(),
   });
-
-  revalidatePath("/dashboard");
 }
 
-export async function updateTopic(topicId: string, formData: FormData) {
-  const userId = await getUserId();
+export async function updateTopic(userId: string, topicId: string, formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   
@@ -61,43 +50,33 @@ export async function updateTopic(topicId: string, formData: FormData) {
 
   const topicRef = doc(db, "users", userId, "topics", topicId);
   await updateDoc(topicRef, { name, description });
-
-  revalidatePath(`/topics/${topicId}`);
-  revalidatePath("/dashboard");
 }
 
-export async function deleteTopic(topicId: string) {
-    const userId = await getUserId();
+export async function deleteTopic(userId: string, topicId: string) {
     const batch = writeBatch(db);
 
-    // Delete all questions in the topic
     const questionsSnapshot = await getDocs(collection(db, "users", userId, "topics", topicId, "questions"));
     questionsSnapshot.forEach(doc => batch.delete(doc.ref));
 
-    // Delete all notes in the topic
     const notesSnapshot = await getDocs(collection(db, "users", userId, "topics", topicId, "notes"));
     notesSnapshot.forEach(doc => batch.delete(doc.ref));
 
-    // Delete the topic itself
     const topicRef = doc(db, "users", userId, "topics", topicId);
     batch.delete(topicRef);
     
     await batch.commit();
-
-    revalidatePath("/dashboard");
 }
 
 
 // Daily Questions Actions
-export async function addDailyQuestion(formData: FormData) {
-  const userId = await getUserId();
+export async function addDailyQuestion(userId: string, formData: FormData) {
   const leetcodeId = formData.get("leetcodeId") as string;
   const note = formData.get("note") as string;
 
   if (!leetcodeId) {
     return { error: "LeetCode ID is required." };
   }
-  const link = `https://leetcode.com/problems/${leetcodeId.split(' ')[0]}/`; // Handle cases like '1. Two Sum'
+  const link = `https://leetcode.com/problems/${leetcodeId.split(' ')[0]}/`;
 
   await addDoc(collection(db, "users", userId, "dailyQuestions"), {
     leetcodeId: parseInt(leetcodeId, 10),
@@ -105,19 +84,14 @@ export async function addDailyQuestion(formData: FormData) {
     note,
     createdAt: serverTimestamp(),
   });
-
-  revalidatePath("/dashboard");
 }
 
-export async function deleteDailyQuestion(id: string) {
-    const userId = await getUserId();
+export async function deleteDailyQuestion(userId: string, id: string) {
     await deleteDoc(doc(db, "users", userId, "dailyQuestions", id));
-    revalidatePath("/dashboard");
 }
 
 // Topic Questions Actions
-export async function addQuestionToTopic(topicId: string, formData: FormData) {
-    const userId = await getUserId();
+export async function addQuestionToTopic(userId: string, topicId: string, formData: FormData) {
     const questionData = {
         title: formData.get('title') as string,
         link: formData.get('link') as string,
@@ -134,11 +108,9 @@ export async function addQuestionToTopic(topicId: string, formData: FormData) {
         ...questionData,
         createdAt: serverTimestamp(),
     });
-    revalidatePath(`/topics/${topicId}`);
 }
 
-export async function updateTopicQuestion(topicId: string, questionId: string, formData: FormData) {
-    const userId = await getUserId();
+export async function updateTopicQuestion(userId: string, topicId: string, questionId: string, formData: FormData) {
     const questionData: Partial<TopicQuestion> = {
         title: formData.get('title') as string,
         link: formData.get('link') as string,
@@ -153,18 +125,14 @@ export async function updateTopicQuestion(topicId: string, questionId: string, f
 
     const questionRef = doc(db, "users", userId, "topics", topicId, "questions", questionId);
     await updateDoc(questionRef, questionData);
-    revalidatePath(`/topics/${topicId}`);
 }
 
-export async function deleteTopicQuestion(topicId: string, questionId: string) {
-    const userId = await getUserId();
+export async function deleteTopicQuestion(userId: string, topicId: string, questionId: string) {
     await deleteDoc(doc(db, "users", userId, "topics", topicId, "questions", questionId));
-    revalidatePath(`/topics/${topicId}`);
 }
 
 // Topic Notes Actions
-export async function addNoteToTopic(topicId: string, formData: FormData) {
-    const userId = await getUserId();
+export async function addNoteToTopic(userId: string, topicId: string, formData: FormData) {
     const noteData = {
         content: formData.get('content') as string,
         type: formData.get('type') as 'text' | 'code' || 'text'
@@ -178,11 +146,9 @@ export async function addNoteToTopic(topicId: string, formData: FormData) {
         ...noteData,
         createdAt: serverTimestamp(),
     });
-    revalidatePath(`/topics/${topicId}`);
 }
 
-export async function updateNoteInTopic(topicId: string, noteId: string, formData: FormData) {
-    const userId = await getUserId();
+export async function updateNoteInTopic(userId: string, topicId: string, noteId: string, formData: FormData) {
     const noteData = {
         content: formData.get('content') as string,
     };
@@ -191,17 +157,14 @@ export async function updateNoteInTopic(topicId: string, noteId: string, formDat
     }
     const noteRef = doc(db, "users", userId, "topics", topicId, "notes", noteId);
     await updateDoc(noteRef, noteData);
-    revalidatePath(`/topics/${topicId}`);
 }
 
-export async function deleteNoteFromTopic(topicId: string, noteId: string) {
-    const userId = await getUserId();
+export async function deleteNoteFromTopic(userId: string, topicId: string, noteId: string) {
     await deleteDoc(doc(db, "users", userId, "topics", topicId, "notes", noteId));
-    revalidatePath(`/topics/${topicId}`);
 }
 
-export async function getAllUserProblems() {
-  const userId = await getUserId();
+export async function getAllUserProblems(userId: string) {
+  if (!userId) return {};
   const topicsSnapshot = await getDocs(collection(db, "users", userId, "topics"));
   const allProblems: Record<string, string[]> = {
     "To-Do": [],
@@ -221,4 +184,30 @@ export async function getAllUserProblems() {
     });
   }
   return allProblems;
+}
+
+export async function getTopics(userId: string): Promise<Topic[]> {
+  if (!userId) return [];
+
+  const q = query(
+    collection(db, "users", userId, "topics"),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as Topic)
+  );
+}
+
+export async function getDailyQuestions(userId: string): Promise<DailyQuestion[]> {
+  if (!userId) return [];
+
+  const q = query(
+    collection(db, "users", userId, "dailyQuestions"),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as DailyQuestion)
+  );
 }

@@ -1,6 +1,8 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { TopicQuestion, QuestionStatus, questionStatuses, Difficulty, difficulties } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -31,12 +33,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { addQuestionToTopic, updateTopicQuestion, deleteTopicQuestion } from "@/app/actions";
+import { addQuestionToTopic, updateTopicQuestion, deleteTopicQuestion } from "@/lib/actions";
 import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
@@ -47,7 +49,18 @@ const formSchema = z.object({
     personalNotes: z.string().optional(),
 });
 
-function QuestionForm({ topicId, question, onFinished }: { topicId: string, question?: TopicQuestion, onFinished: () => void }) {
+function QuestionForm({ 
+    userId,
+    topicId, 
+    question, 
+    onFinished 
+}: { 
+    userId: string,
+    topicId: string, 
+    question?: TopicQuestion, 
+    onFinished: () => void 
+}) {
+    const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: question || {
@@ -65,52 +78,58 @@ function QuestionForm({ topicId, question, onFinished }: { topicId: string, ques
             if (value) formData.append(key, value);
         });
         
-        if (question) {
-            await updateTopicQuestion(topicId, question.id, formData);
-        } else {
-            await addQuestionToTopic(topicId, formData);
-        }
-        onFinished();
+        startTransition(async () => {
+            if (question) {
+                await updateTopicQuestion(userId, topicId, question.id, formData);
+            } else {
+                await addQuestionToTopic(userId, topicId, formData);
+            }
+            onFinished();
+        });
     }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField control={form.control} name="title" render={({ field }) => (
-                    <FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g. Two Sum" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g. Two Sum" {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="link" render={({ field }) => (
-                    <FormItem><FormLabel>LeetCode Link</FormLabel><FormControl><Input placeholder="https://leetcode.com/problems/..." {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>LeetCode Link</FormLabel><FormControl><Input placeholder="https://leetcode.com/problems/..." {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <div className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="difficulty" render={({ field }) => (
-                        <FormItem><FormLabel>Difficulty</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormItem><FormLabel>Difficulty</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={isPending}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select difficulty" /></SelectTrigger></FormControl>
                             <SelectContent>{difficulties.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
                         </Select><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="status" render={({ field }) => (
-                        <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={isPending}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
                             <SelectContent>{questionStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                         </Select><FormMessage /></FormItem>
                     )}/>
                 </div>
                 <FormField control={form.control} name="personalNotes" render={({ field }) => (
-                    <FormItem><FormLabel>Personal Notes</FormLabel><FormControl><Textarea placeholder="Your thoughts and notes on this problem." {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Personal Notes</FormLabel><FormControl><Textarea placeholder="Your thoughts and notes on this problem." {...field} disabled={isPending} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <DialogFooter>
-                  <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
-                  <Button type="submit">Save</Button>
+                  <DialogClose asChild><Button type="button" variant="secondary" disabled={isPending}>Cancel</Button></DialogClose>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save
+                  </Button>
                 </DialogFooter>
             </form>
         </Form>
     )
 }
 
-function QuestionItem({ question, topicId }: { question: TopicQuestion, topicId: string }) {
+function QuestionItem({ question, userId, topicId, onDeleted }: { question: TopicQuestion, userId: string, topicId: string, onDeleted: () => void }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
     const statusColorMap: Record<QuestionStatus, string> = {
         "To-Do": "bg-gray-200 text-gray-800",
@@ -119,6 +138,14 @@ function QuestionItem({ question, topicId }: { question: TopicQuestion, topicId:
         "Important": "bg-red-200 text-red-800",
         "Tricky": "bg-purple-200 text-purple-800",
     };
+
+    const handleDelete = () => {
+        startTransition(async () => {
+            await deleteTopicQuestion(userId, topicId, question.id);
+            setIsDeleteOpen(false);
+            onDeleted();
+        });
+    }
 
     return (
         <div className="flex items-center justify-between rounded-md border p-4">
@@ -133,17 +160,18 @@ function QuestionItem({ question, topicId }: { question: TopicQuestion, topicId:
             <div className="flex items-center gap-1">
                 <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                     <DialogTrigger asChild><Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button></DialogTrigger>
-                    <DialogContent><DialogHeader><DialogTitle>Edit Question</DialogTitle></DialogHeader><QuestionForm topicId={topicId} question={question} onFinished={() => setIsEditOpen(false)}/></DialogContent>
+                    <DialogContent><DialogHeader><DialogTitle>Edit Question</DialogTitle></DialogHeader><QuestionForm userId={userId} topicId={topicId} question={question} onFinished={() => { setIsEditOpen(false); onDeleted(); }}/></DialogContent>
                 </Dialog>
                 <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                     <DialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button></DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Are you sure?</DialogTitle><DialogDescription>This will permanently delete the question. This action cannot be undone.</DialogDescription></DialogHeader>
                         <DialogFooter>
-                            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
-                            <form action={async () => { await deleteTopicQuestion(topicId, question.id); setIsDeleteOpen(false); }}>
-                                <Button variant="destructive" type="submit">Delete</Button>
-                            </form>
+                            <DialogClose asChild><Button variant="secondary" disabled={isPending}>Cancel</Button></DialogClose>
+                            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
+                                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Delete
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -152,11 +180,16 @@ function QuestionItem({ question, topicId }: { question: TopicQuestion, topicId:
     )
 }
 
-export function QuestionList({ questions, topicId }: { questions: TopicQuestion[]; topicId: string }) {
+export function QuestionList({ questions, topicId, onDataRefresh }: { questions: TopicQuestion[]; topicId: string; onDataRefresh: () => void; }) {
   const [filter, setFilter] = useState<QuestionStatus | "All">("All");
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const { user } = useAuth();
 
   const filteredQuestions = filter === "All" ? questions : questions.filter(q => q.status === filter);
+
+  if (!user) {
+      return <Card><CardContent><p className="text-muted-foreground text-center py-8">Please log in to see questions.</p></CardContent></Card>
+  }
 
   return (
     <Card>
@@ -168,7 +201,14 @@ export function QuestionList({ questions, topicId }: { questions: TopicQuestion[
                 </div>
                 <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                     <DialogTrigger asChild><Button size="sm"><Plus className="mr-2 h-4 w-4" /> Add Question</Button></DialogTrigger>
-                    <DialogContent><DialogHeader><DialogTitle>Add New Question</DialogTitle></DialogHeader><QuestionForm topicId={topicId} onFinished={() => setIsAddOpen(false)}/></DialogContent>
+                    <DialogContent>
+                        <DialogHeader><DialogTitle>Add New Question</DialogTitle></DialogHeader>
+                        <QuestionForm 
+                            userId={user.uid} 
+                            topicId={topicId} 
+                            onFinished={() => { setIsAddOpen(false); onDataRefresh(); }}
+                        />
+                    </DialogContent>
                 </Dialog>
             </div>
              <div className="flex items-center gap-2 pt-4 overflow-x-auto">
@@ -182,7 +222,7 @@ export function QuestionList({ questions, topicId }: { questions: TopicQuestion[
         </CardHeader>
         <CardContent className="space-y-4">
             {filteredQuestions.length > 0 ? (
-                filteredQuestions.map(q => <QuestionItem key={q.id} question={q} topicId={topicId} />)
+                filteredQuestions.map(q => <QuestionItem key={q.id} question={q} userId={user.uid} topicId={topicId} onDeleted={onDataRefresh} />)
             ) : (
                 <div className="text-center text-muted-foreground py-8">
                     <p>No questions found for this filter.</p>
