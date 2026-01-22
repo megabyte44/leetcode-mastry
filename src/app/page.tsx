@@ -10,6 +10,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    /*
     if (!loading) {
       if (user) {
         router.replace("/dashboard");
@@ -17,7 +18,9 @@ export default function Home() {
         router.replace("/login");
       }
     }
-  }, [user, loading, router]);
+    */
+    router.replace("/dashboard");
+  }, [router]);
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">
