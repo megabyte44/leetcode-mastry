@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, addDoc, deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,19 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Brain, Plus, Search, Trash2, Edit, Loader2, Lightbulb, AlertTriangle, CheckCircle, BookOpen } from "lucide-react";
+import { Brain, Plus, Search, Trash2, Loader2, Lightbulb, AlertTriangle, CheckCircle, BookOpen, Database } from "lucide-react";
 import { patterns, topicTags } from "@/lib/types";
-
-type MemoryType = 'insight' | 'mistake' | 'pattern' | 'tip';
-
-interface Memory {
-  id: string;
-  content: string;
-  type: MemoryType;
-  tags: string[];
-  createdAt: any;
-  relatedProblems?: string[];
-}
+import { 
+  addMemory, 
+  getMemories, 
+  deleteMemory, 
+  getMemoryStats,
+  type MemoryType,
+  type MongoMemory 
+} from "@/lib/memory-actions";
 
 const memoryTypeConfig: Record<MemoryType, { label: string; icon: typeof Lightbulb; color: string }> = {
   insight: { label: 'Insight', icon: Lightbulb, color: 'text-amber-500' },
@@ -47,20 +42,18 @@ const memoryTypeConfig: Record<MemoryType, { label: string; icon: typeof Lightbu
   tip: { label: 'Tip', icon: BookOpen, color: 'text-blue-500' },
 };
 
-function extractTags(content: string): string[] {
-  const words = content.toLowerCase().split(/\s+/);
+function extractTagsLocally(content: string): string[] {
   const foundTags: string[] = [];
+  const lowerContent = content.toLowerCase();
   
-  // Check for pattern matches
   for (const pattern of patterns) {
-    if (content.toLowerCase().includes(pattern.toLowerCase())) {
+    if (lowerContent.includes(pattern.toLowerCase())) {
       foundTags.push(pattern);
     }
   }
   
-  // Check for topic matches
   for (const topic of topicTags) {
-    if (content.toLowerCase().includes(topic.toLowerCase())) {
+    if (lowerContent.includes(topic.toLowerCase())) {
       foundTags.push(topic);
     }
   }
@@ -70,12 +63,14 @@ function extractTags(content: string): string[] {
 
 export default function MemoryBankPage() {
   const { user, loading: authLoading } = useAuth();
-  const [memories, setMemories] = useState<Memory[]>([]);
+  const [memories, setMemories] = useState<MongoMemory[]>([]);
+  const [stats, setStats] = useState<Record<MemoryType, number>>({ insight: 0, mistake: 0, pattern: 0, tip: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [dbError, setDbError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<MemoryType | "all">("all");
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   
   // Form state
   const [newContent, setNewContent] = useState("");
@@ -83,86 +78,103 @@ export default function MemoryBankPage() {
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // Fetch memories from MongoDB
   useEffect(() => {
     if (!user) return;
 
-    const fetchMemories = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
-      const memoriesRef = collection(db, "users", user.uid, "memories");
-      const memoriesSnapshot = await getDocs(query(memoriesRef, orderBy("createdAt", "desc")));
+      setDbError(null);
       
-      const fetchedMemories = memoriesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Memory[];
-      
-      setMemories(fetchedMemories);
-      setIsLoading(false);
+      try {
+        const [memoriesResult, statsResult] = await Promise.all([
+          getMemories(user.uid, { 
+            type: filterType === "all" ? undefined : filterType,
+            search: searchQuery || undefined,
+          }),
+          getMemoryStats(user.uid),
+        ]);
+        
+        if (memoriesResult.success && memoriesResult.memories) {
+          setMemories(memoriesResult.memories);
+        } else if (memoriesResult.error) {
+          setDbError(memoriesResult.error);
+        }
+        
+        if (statsResult.success && statsResult.stats) {
+          setStats(statsResult.stats);
+        }
+      } catch (error) {
+        console.error("Failed to fetch memories:", error);
+        setDbError("Failed to connect to database");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchMemories();
-  }, [user]);
+    fetchData();
+  }, [user, filterType, searchQuery]);
 
   // Auto-suggest tags when content changes
   useEffect(() => {
     if (newContent.length > 10) {
-      const tags = extractTags(newContent);
+      const tags = extractTagsLocally(newContent);
       setSuggestedTags(tags);
+    } else {
+      setSuggestedTags([]);
     }
   }, [newContent]);
 
   const handleAddMemory = async () => {
     if (!user || !newContent.trim()) return;
     
-    setIsPending(true);
-    try {
-      const memoryRef = collection(db, "users", user.uid, "memories");
-      const newMemory = {
-        content: newContent,
-        type: newType,
-        tags: selectedTags.length > 0 ? selectedTags : suggestedTags,
-        createdAt: serverTimestamp(),
-      };
+    startTransition(async () => {
+      const tags = selectedTags.length > 0 ? selectedTags : suggestedTags;
+      const result = await addMemory(user.uid, newContent, newType, tags);
       
-      const docRef = await addDoc(memoryRef, newMemory);
-      
-      setMemories(prev => [{
-        id: docRef.id,
-        ...newMemory,
-      } as Memory, ...prev]);
-      
-      setNewContent("");
-      setNewType("insight");
-      setSelectedTags([]);
-      setSuggestedTags([]);
-      setIsAddOpen(false);
-    } catch (error) {
-      console.error("Failed to add memory:", error);
-    } finally {
-      setIsPending(false);
-    }
+      if (result.success) {
+        // Refresh the list
+        const memoriesResult = await getMemories(user.uid);
+        if (memoriesResult.success && memoriesResult.memories) {
+          setMemories(memoriesResult.memories);
+        }
+        
+        const statsResult = await getMemoryStats(user.uid);
+        if (statsResult.success && statsResult.stats) {
+          setStats(statsResult.stats);
+        }
+        
+        setNewContent("");
+        setNewType("insight");
+        setSelectedTags([]);
+        setSuggestedTags([]);
+        setIsAddOpen(false);
+      } else {
+        console.error("Failed to add memory:", result.error);
+      }
+    });
   };
 
   const handleDeleteMemory = async (memoryId: string) => {
     if (!user) return;
     
-    try {
-      await deleteDoc(doc(db, "users", user.uid, "memories", memoryId));
-      setMemories(prev => prev.filter(m => m.id !== memoryId));
-    } catch (error) {
-      console.error("Failed to delete memory:", error);
-    }
+    startTransition(async () => {
+      const result = await deleteMemory(user.uid, memoryId);
+      
+      if (result.success) {
+        setMemories(prev => prev.filter(m => m._id?.toString() !== memoryId));
+        
+        const statsResult = await getMemoryStats(user.uid);
+        if (statsResult.success && statsResult.stats) {
+          setStats(statsResult.stats);
+        }
+      } else {
+        console.error("Failed to delete memory:", result.error);
+      }
+    });
   };
 
-  const filteredMemories = memories.filter(memory => {
-    const matchesSearch = searchQuery === "" || 
-      memory.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      memory.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesType = filterType === "all" || memory.type === filterType;
-    return matchesSearch && matchesType;
-  });
-
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -187,8 +199,9 @@ export default function MemoryBankPage() {
             <Brain className="h-6 w-6 text-primary" />
             Memory Bank
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Store insights, patterns, and lessons learned from your problem-solving journey.
+          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+            <Database className="h-3 w-3" />
+            Powered by MongoDB • Store insights and lessons learned
           </p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -275,6 +288,15 @@ export default function MemoryBankPage() {
         </Dialog>
       </div>
 
+      {/* Database error banner */}
+      {dbError && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            <strong>Database connection issue:</strong> {dbError}. Make sure MONGODB_URI is set in your .env file.
+          </p>
+        </div>
+      )}
+
       {/* Search and filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -307,7 +329,7 @@ export default function MemoryBankPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {Object.entries(memoryTypeConfig).map(([key, config]) => {
-          const count = memories.filter(m => m.type === key).length;
+          const count = stats[key as MemoryType] || 0;
           return (
             <Card key={key} className="p-4">
               <div className="flex items-center gap-2">
@@ -321,14 +343,19 @@ export default function MemoryBankPage() {
       </div>
 
       {/* Memory list */}
-      {filteredMemories.length > 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : memories.length > 0 ? (
         <div className="space-y-3">
-          {filteredMemories.map(memory => {
+          {memories.map(memory => {
             const config = memoryTypeConfig[memory.type];
             const Icon = config.icon;
+            const memoryId = memory._id?.toString() || '';
             
             return (
-              <Card key={memory.id} className="group">
+              <Card key={memoryId} className="group">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className={`shrink-0 h-8 w-8 rounded-full bg-muted flex items-center justify-center ${config.color}`}>
@@ -336,7 +363,7 @@ export default function MemoryBankPage() {
                     </div>
                     <div className="flex-1 min-w-0 space-y-2">
                       <p className="text-sm">{memory.content}</p>
-                      {memory.tags.length > 0 && (
+                      {memory.tags && memory.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {memory.tags.map(tag => (
                             <Badge key={tag} variant="secondary" className="text-xs">
@@ -346,14 +373,15 @@ export default function MemoryBankPage() {
                         </div>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        {memory.createdAt?.toDate?.()?.toLocaleDateString() || 'Just now'}
+                        {memory.createdAt ? new Date(memory.createdAt).toLocaleDateString() : 'Just now'}
                       </p>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleDeleteMemory(memory.id)}
+                      onClick={() => handleDeleteMemory(memoryId)}
+                      disabled={isPending}
                     >
                       <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                     </Button>

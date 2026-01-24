@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Download, FileJson, FileText, Loader2 } from "lucide-react";
-import { ExportData, Topic, TopicQuestion, DailyQuestion, TopicNote, Snippet } from "@/lib/types";
+import { ExportData, Topic, TopicQuestion, DailyQuestion, TopicNote, CodeSnippet } from "@/lib/types";
 
 export function ExportDataButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +74,7 @@ export function ExportDataButton() {
     const snippets = snippetsSnapshot.docs.map(doc => ({ 
       id: doc.id, 
       ...doc.data() 
-    })) as Snippet[];
+    })) as CodeSnippet[];
 
     return {
       exportedAt: new Date().toISOString(),

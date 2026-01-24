@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,8 @@ const formSchema = z.object({
   additionalContext: z.string().optional(),
 });
 
+const STORAGE_KEY = "ai-suggester-form-data";
+
 export function AIProblemSuggester() {
   const [suggestions, setSuggestions] = useState<SuggestLeetCodeProblemsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +38,31 @@ export function AIProblemSuggester() {
       additionalContext: "",
     },
   });
+
+  // Load saved form data on component mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        form.reset(parsedData);
+      } catch (error) {
+        console.error("Failed to parse saved form data:", error);
+      }
+    }
+  }, [form]);
+
+  // Save form data whenever it changes
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (error) {
+        console.error("Failed to save form data:", error);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {

@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TopicQuestion, Topic, ReviewItem, Difficulty } from "@/lib/types";
-import { Brain, CheckCircle2, XCircle, RotateCcw, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import { Brain, CheckCircle2, RotateCcw, ChevronRight, ExternalLink, Loader2, Database, Trophy, Flame } from "lucide-react";
 import Link from "next/link";
+import { recordReview, getReviewStats, type ReviewStats } from "@/lib/review-actions";
 
 // SM-2 Spaced Repetition Algorithm (simplified)
 function calculateNextReview(confidence: number, currentInterval: number = 1): { nextDate: Date; newInterval: number } {
@@ -52,7 +53,10 @@ function getReviewPriority(question: TopicQuestion): number {
   
   // Overdue review = higher priority
   if (question.nextReviewDate) {
-    const daysOverdue = Math.floor((Date.now() - new Date(question.nextReviewDate).getTime()) / (1000 * 60 * 60 * 24));
+    const reviewDate = typeof question.nextReviewDate === 'object' && 'toDate' in question.nextReviewDate 
+      ? question.nextReviewDate.toDate() 
+      : new Date(question.nextReviewDate as any);
+    const daysOverdue = Math.floor((Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24));
     if (daysOverdue > 0) {
       priority += daysOverdue * 10;
     }
@@ -77,12 +81,21 @@ export default function SmartReviewPage() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sessionStats, setSessionStats] = useState({ reviewed: 0, easy: 0, hard: 0 });
+  const [globalStats, setGlobalStats] = useState<ReviewStats | null>(null);
 
   useEffect(() => {
     if (!user) return;
 
-    const fetchReviewItems = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
+      
+      // Fetch global stats from MongoDB
+      const statsResult = await getReviewStats(user.uid);
+      if (statsResult.success && statsResult.stats) {
+        setGlobalStats(statsResult.stats);
+      }
+      
+      // Fetch questions from Firebase
       const topicsRef = collection(db, "users", user.uid, "topics");
       const topicsSnapshot = await getDocs(topicsRef);
       
@@ -101,7 +114,12 @@ export default function SmartReviewPage() {
             question.status !== 'Solved' || 
             !question.confidence ||
             question.confidence < 4 ||
-            (question.nextReviewDate && new Date(question.nextReviewDate) <= new Date());
+            (question.nextReviewDate && (() => {
+              const reviewDate = typeof question.nextReviewDate === 'object' && 'toDate' in question.nextReviewDate 
+                ? question.nextReviewDate.toDate() 
+                : new Date(question.nextReviewDate as any);
+              return reviewDate <= new Date();
+            })());
           
           if (shouldReview) {
             allItems.push({
@@ -121,7 +139,7 @@ export default function SmartReviewPage() {
       setIsLoading(false);
     };
 
-    fetchReviewItems();
+    fetchData();
   }, [user]);
 
   const handleConfidenceRating = async (rating: number) => {
@@ -140,7 +158,17 @@ export default function SmartReviewPage() {
       attemptCount: (item.question.attemptCount || 0) + 1,
     });
     
-    // Update stats
+    // Record review in MongoDB for analytics
+    await recordReview(
+      user.uid,
+      item.question.id,
+      item.topicId,
+      item.question.title,
+      item.question.difficulty,
+      rating
+    );
+    
+    // Update session stats
     setSessionStats(prev => ({
       reviewed: prev.reviewed + 1,
       easy: prev.easy + (rating >= 4 ? 1 : 0),
@@ -175,9 +203,9 @@ export default function SmartReviewPage() {
   }
 
   // Session complete
-  if (currentIndex >= reviewItems.length) {
+  if (currentIndex >= reviewItems.length && reviewItems.length > 0) {
     return (
-      <div className="container max-w-2xl mx-auto py-8 px-4">
+      <div className="container max-w-2xl mx-auto py-8 px-4 space-y-6">
         <Card className="text-center">
           <CardHeader>
             <div className="mx-auto h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
@@ -209,6 +237,44 @@ export default function SmartReviewPage() {
             </Button>
           </CardContent>
         </Card>
+        
+        {/* Global stats from MongoDB */}
+        {globalStats && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Database className="h-5 w-5 text-primary" />
+                Your Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{globalStats.totalReviews}</div>
+                  <div className="text-xs text-muted-foreground">Total Reviews</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold flex items-center justify-center gap-1">
+                    <Flame className="h-5 w-5 text-orange-500" />
+                    {globalStats.streakDays}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Day Streak</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold flex items-center justify-center gap-1">
+                    <Trophy className="h-5 w-5 text-amber-500" />
+                    {globalStats.masteredCount}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Mastered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{globalStats.averageConfidence.toFixed(1)}</div>
+                  <div className="text-xs text-muted-foreground">Avg Confidence</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }

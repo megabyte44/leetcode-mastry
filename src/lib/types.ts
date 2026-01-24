@@ -174,7 +174,7 @@ export type TopicQuestion = {
   status: QuestionStatus;
   
   // Enhanced fields
-  confidence?: ConfidenceLevel;
+  confidence?: number;
   patterns?: string[];
   topicTags?: string[];
   companies?: string[];
@@ -190,6 +190,7 @@ export type TopicQuestion = {
   attemptCount?: number;
   lastSolved?: Timestamp;
   nextReviewDate?: Timestamp;
+  reviewInterval?: number; // days for spaced repetition
   createdAt: Timestamp;
 };
 
@@ -223,44 +224,40 @@ export type LeetCodeProblem = {
 };
 
 // ============ AI Memory Bank ============
+export type MemoryType = 'insight' | 'mistake' | 'pattern' | 'tip';
+
 export type Memory = {
   id: string;
-  odId: string;
+  userId: string;
   content: string;
   tags: string[];
   relatedTopics?: string[];
   relatedProblems?: string[];
-  type: 'insight' | 'thought' | 'experience' | 'mistake' | 'tip';
-  createdAt: Date;
-  updatedAt: Date;
+  type: MemoryType;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
 };
 
 // ============ Spaced Repetition ============
 export type ReviewItem = {
-  odId: string;
-  questionId: string;
+  question: TopicQuestion;
   topicId: string;
-  title: string;
-  difficulty: Difficulty;
-  lastReviewed: Date;
-  nextReview: Date;
-  easeFactor: number; // SM-2 algorithm
-  interval: number; // days
-  repetitions: number;
+  topicName: string;
+  priority: number;
 };
 
 // ============ Export Data ============
 export type ExportData = {
   exportedAt: string;
+  version: string;
   user: {
-    odId: string;
+    uid: string;
     email?: string;
+    displayName?: string;
   };
-  topics: Topic[];
-  questions: (TopicQuestion & { topicId: string; topicName: string })[];
+  topics: (Topic & { questions: TopicQuestion[]; notes: TopicNote[] })[];
   dailyQuestions: DailyQuestion[];
   snippets: CodeSnippet[];
-  memories: Memory[];
 };
 
 // ============ Offline Sync ============
