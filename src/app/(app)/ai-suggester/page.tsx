@@ -2,13 +2,17 @@ import { AIProblemSuggester } from "@/components/ai/problem-suggester";
 
 export default function AISuggesterPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">AI Problem Suggester</h1>
-        <p className="text-muted-foreground">
-          Get personalized LeetCode problem suggestions based on your performance.
+    <div className="space-y-6 pb-8">
+      {/* Page header */}
+      <header className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+          AI Suggester
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base max-w-xl">
+          Get personalized problem recommendations based on your practice history.
         </p>
-      </div>
+      </header>
+      
       <AIProblemSuggester />
     </div>
   );

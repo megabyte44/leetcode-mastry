@@ -1,0 +1,1410 @@
+{
+  "problems": [
+    {
+      "id": 1,
+      "slug": "two-sum",
+      "title": "Two Sum",
+      "difficulty": "Easy",
+      "topics": ["Array", "Hash Table"],
+      "patterns": ["Hash Map"],
+      "companies": ["Google", "Amazon", "Meta", "Apple", "Microsoft", "Bloomberg", "Adobe"],
+      "frequency": 95
+    },
+    {
+      "id": 2,
+      "slug": "add-two-numbers",
+      "title": "Add Two Numbers",
+      "difficulty": "Medium",
+      "topics": ["Linked List", "Math", "Recursion"],
+      "patterns": ["Linked List"],
+      "companies": ["Amazon", "Microsoft", "Bloomberg", "Meta"],
+      "frequency": 80
+    },
+    {
+      "id": 3,
+      "slug": "longest-substring-without-repeating-characters",
+      "title": "Longest Substring Without Repeating Characters",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Sliding Window"],
+      "patterns": ["Sliding Window", "Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Bloomberg", "Meta", "Google", "Apple"],
+      "frequency": 92
+    },
+    {
+      "id": 4,
+      "slug": "median-of-two-sorted-arrays",
+      "title": "Median of Two Sorted Arrays",
+      "difficulty": "Hard",
+      "topics": ["Array", "Binary Search", "Divide and Conquer"],
+      "patterns": ["Binary Search", "Divide & Conquer"],
+      "companies": ["Google", "Amazon", "Microsoft", "Apple", "Goldman Sachs"],
+      "frequency": 75
+    },
+    {
+      "id": 5,
+      "slug": "longest-palindromic-substring",
+      "title": "Longest Palindromic Substring",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming", "Two Pointers"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Google"],
+      "frequency": 85
+    },
+    {
+      "id": 7,
+      "slug": "reverse-integer",
+      "title": "Reverse Integer",
+      "difficulty": "Medium",
+      "topics": ["Math"],
+      "patterns": ["Math"],
+      "companies": ["Bloomberg", "Apple", "Amazon"],
+      "frequency": 60
+    },
+    {
+      "id": 9,
+      "slug": "palindrome-number",
+      "title": "Palindrome Number",
+      "difficulty": "Easy",
+      "topics": ["Math"],
+      "patterns": ["Math"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 55
+    },
+    {
+      "id": 11,
+      "slug": "container-with-most-water",
+      "title": "Container With Most Water",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Greedy"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Amazon", "Microsoft", "Google", "Meta", "Goldman Sachs"],
+      "frequency": 88
+    },
+    {
+      "id": 13,
+      "slug": "roman-to-integer",
+      "title": "Roman to Integer",
+      "difficulty": "Easy",
+      "topics": ["Hash Table", "Math", "String"],
+      "patterns": ["Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Bloomberg"],
+      "frequency": 65
+    },
+    {
+      "id": 14,
+      "slug": "longest-common-prefix",
+      "title": "Longest Common Prefix",
+      "difficulty": "Easy",
+      "topics": ["String", "Trie"],
+      "patterns": ["String Manipulation"],
+      "companies": ["Amazon", "Google", "Apple"],
+      "frequency": 60
+    },
+    {
+      "id": 15,
+      "slug": "3sum",
+      "title": "3Sum",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Sorting"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "Apple", "Bloomberg"],
+      "frequency": 90
+    },
+    {
+      "id": 17,
+      "slug": "letter-combinations-of-a-phone-number",
+      "title": "Letter Combinations of a Phone Number",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Backtracking"],
+      "patterns": ["Backtracking"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google"],
+      "frequency": 78
+    },
+    {
+      "id": 19,
+      "slug": "remove-nth-node-from-end-of-list",
+      "title": "Remove Nth Node From End of List",
+      "difficulty": "Medium",
+      "topics": ["Linked List", "Two Pointers"],
+      "patterns": ["Two Pointers", "Fast & Slow Pointers"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 75
+    },
+    {
+      "id": 20,
+      "slug": "valid-parentheses",
+      "title": "Valid Parentheses",
+      "difficulty": "Easy",
+      "topics": ["String", "Stack"],
+      "patterns": ["Stack"],
+      "companies": ["Amazon", "Google", "Meta", "Bloomberg", "Microsoft"],
+      "frequency": 88
+    },
+    {
+      "id": 21,
+      "slug": "merge-two-sorted-lists",
+      "title": "Merge Two Sorted Lists",
+      "difficulty": "Easy",
+      "topics": ["Linked List", "Recursion"],
+      "patterns": ["Linked List", "Recursion"],
+      "companies": ["Amazon", "Microsoft", "Apple", "Meta"],
+      "frequency": 85
+    },
+    {
+      "id": 22,
+      "slug": "generate-parentheses",
+      "title": "Generate Parentheses",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming", "Backtracking"],
+      "patterns": ["Backtracking"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft"],
+      "frequency": 82
+    },
+    {
+      "id": 23,
+      "slug": "merge-k-sorted-lists",
+      "title": "Merge k Sorted Lists",
+      "difficulty": "Hard",
+      "topics": ["Linked List", "Divide and Conquer", "Heap (Priority Queue)", "Merge Sort"],
+      "patterns": ["K-way Merge", "Heap/Priority Queue", "Divide & Conquer"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft", "Apple"],
+      "frequency": 88
+    },
+    {
+      "id": 26,
+      "slug": "remove-duplicates-from-sorted-array",
+      "title": "Remove Duplicates from Sorted Array",
+      "difficulty": "Easy",
+      "topics": ["Array", "Two Pointers"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Meta", "Amazon", "Microsoft"],
+      "frequency": 70
+    },
+    {
+      "id": 33,
+      "slug": "search-in-rotated-sorted-array",
+      "title": "Search in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "topics": ["Array", "Binary Search"],
+      "patterns": ["Binary Search", "Modified Binary Search"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Google", "Bloomberg"],
+      "frequency": 88
+    },
+    {
+      "id": 36,
+      "slug": "valid-sudoku",
+      "title": "Valid Sudoku",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Matrix"],
+      "patterns": ["Matrix", "Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Apple"],
+      "frequency": 72
+    },
+    {
+      "id": 39,
+      "slug": "combination-sum",
+      "title": "Combination Sum",
+      "difficulty": "Medium",
+      "topics": ["Array", "Backtracking"],
+      "patterns": ["Backtracking"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 41,
+      "slug": "first-missing-positive",
+      "title": "First Missing Positive",
+      "difficulty": "Hard",
+      "topics": ["Array", "Hash Table"],
+      "patterns": ["Cyclic Sort"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 70
+    },
+    {
+      "id": 42,
+      "slug": "trapping-rain-water",
+      "title": "Trapping Rain Water",
+      "difficulty": "Hard",
+      "topics": ["Array", "Two Pointers", "Dynamic Programming", "Stack", "Monotonic Stack"],
+      "patterns": ["Two Pointers", "Monotonic Stack", "Dynamic Programming"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft", "Goldman Sachs", "Apple"],
+      "frequency": 92
+    },
+    {
+      "id": 46,
+      "slug": "permutations",
+      "title": "Permutations",
+      "difficulty": "Medium",
+      "topics": ["Array", "Backtracking"],
+      "patterns": ["Backtracking", "Subsets"],
+      "companies": ["Amazon", "Meta", "Microsoft", "LinkedIn"],
+      "frequency": 82
+    },
+    {
+      "id": 48,
+      "slug": "rotate-image",
+      "title": "Rotate Image",
+      "difficulty": "Medium",
+      "topics": ["Array", "Math", "Matrix"],
+      "patterns": ["Matrix"],
+      "companies": ["Amazon", "Microsoft", "Apple", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 49,
+      "slug": "group-anagrams",
+      "title": "Group Anagrams",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "String", "Sorting"],
+      "patterns": ["Hash Map"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "Bloomberg"],
+      "frequency": 88
+    },
+    {
+      "id": 53,
+      "slug": "maximum-subarray",
+      "title": "Maximum Subarray",
+      "difficulty": "Medium",
+      "topics": ["Array", "Divide and Conquer", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming", "Divide & Conquer"],
+      "companies": ["Amazon", "Microsoft", "Apple", "LinkedIn", "Google"],
+      "frequency": 90
+    },
+    {
+      "id": 54,
+      "slug": "spiral-matrix",
+      "title": "Spiral Matrix",
+      "difficulty": "Medium",
+      "topics": ["Array", "Matrix", "Simulation"],
+      "patterns": ["Matrix"],
+      "companies": ["Amazon", "Microsoft", "Apple", "Google"],
+      "frequency": 78
+    },
+    {
+      "id": 55,
+      "slug": "jump-game",
+      "title": "Jump Game",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming", "Greedy"],
+      "patterns": ["Greedy", "Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft", "Apple"],
+      "frequency": 80
+    },
+    {
+      "id": 56,
+      "slug": "merge-intervals",
+      "title": "Merge Intervals",
+      "difficulty": "Medium",
+      "topics": ["Array", "Sorting"],
+      "patterns": ["Merge Intervals"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "Bloomberg", "Apple"],
+      "frequency": 92
+    },
+    {
+      "id": 57,
+      "slug": "insert-interval",
+      "title": "Insert Interval",
+      "difficulty": "Medium",
+      "topics": ["Array"],
+      "patterns": ["Merge Intervals"],
+      "companies": ["Google", "Meta", "LinkedIn"],
+      "frequency": 78
+    },
+    {
+      "id": 62,
+      "slug": "unique-paths",
+      "title": "Unique Paths",
+      "difficulty": "Medium",
+      "topics": ["Math", "Dynamic Programming", "Combinatorics"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Google", "Microsoft"],
+      "frequency": 75
+    },
+    {
+      "id": 70,
+      "slug": "climbing-stairs",
+      "title": "Climbing Stairs",
+      "difficulty": "Easy",
+      "topics": ["Math", "Dynamic Programming", "Memoization"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft", "Apple"],
+      "frequency": 82
+    },
+    {
+      "id": 72,
+      "slug": "edit-distance",
+      "title": "Edit Distance",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Google", "Microsoft"],
+      "frequency": 75
+    },
+    {
+      "id": 73,
+      "slug": "set-matrix-zeroes",
+      "title": "Set Matrix Zeroes",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Matrix"],
+      "patterns": ["Matrix"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 72
+    },
+    {
+      "id": 74,
+      "slug": "search-a-2d-matrix",
+      "title": "Search a 2D Matrix",
+      "difficulty": "Medium",
+      "topics": ["Array", "Binary Search", "Matrix"],
+      "patterns": ["Binary Search", "Matrix"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 75
+    },
+    {
+      "id": 75,
+      "slug": "sort-colors",
+      "title": "Sort Colors",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Sorting"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 76,
+      "slug": "minimum-window-substring",
+      "title": "Minimum Window Substring",
+      "difficulty": "Hard",
+      "topics": ["Hash Table", "String", "Sliding Window"],
+      "patterns": ["Sliding Window", "Hash Map"],
+      "companies": ["Amazon", "Meta", "Google", "Microsoft", "LinkedIn"],
+      "frequency": 88
+    },
+    {
+      "id": 78,
+      "slug": "subsets",
+      "title": "Subsets",
+      "difficulty": "Medium",
+      "topics": ["Array", "Backtracking", "Bit Manipulation"],
+      "patterns": ["Backtracking", "Subsets", "Bit Manipulation"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 82
+    },
+    {
+      "id": 79,
+      "slug": "word-search",
+      "title": "Word Search",
+      "difficulty": "Medium",
+      "topics": ["Array", "Backtracking", "Matrix"],
+      "patterns": ["Backtracking", "DFS", "Matrix"],
+      "companies": ["Amazon", "Microsoft", "Bloomberg"],
+      "frequency": 80
+    },
+    {
+      "id": 84,
+      "slug": "largest-rectangle-in-histogram",
+      "title": "Largest Rectangle in Histogram",
+      "difficulty": "Hard",
+      "topics": ["Array", "Stack", "Monotonic Stack"],
+      "patterns": ["Monotonic Stack", "Stack"],
+      "companies": ["Amazon", "Google", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 91,
+      "slug": "decode-ways",
+      "title": "Decode Ways",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Meta", "Amazon", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 94,
+      "slug": "binary-tree-inorder-traversal",
+      "title": "Binary Tree Inorder Traversal",
+      "difficulty": "Easy",
+      "topics": ["Stack", "Tree", "Depth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal", "Stack"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 70
+    },
+    {
+      "id": 98,
+      "slug": "validate-binary-search-tree",
+      "title": "Validate Binary Search Tree",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Depth-First Search", "Binary Search Tree", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Bloomberg"],
+      "frequency": 85
+    },
+    {
+      "id": 100,
+      "slug": "same-tree",
+      "title": "Same Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "BFS", "Tree Traversal"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 65
+    },
+    {
+      "id": 101,
+      "slug": "symmetric-tree",
+      "title": "Symmetric Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "BFS", "Tree Traversal"],
+      "companies": ["Amazon", "Microsoft", "LinkedIn"],
+      "frequency": 72
+    },
+    {
+      "id": 102,
+      "slug": "binary-tree-level-order-traversal",
+      "title": "Binary Tree Level Order Traversal",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["BFS", "Tree Traversal"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Bloomberg"],
+      "frequency": 85
+    },
+    {
+      "id": 104,
+      "slug": "maximum-depth-of-binary-tree",
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "BFS", "Tree Traversal", "Recursion"],
+      "companies": ["Amazon", "Microsoft", "LinkedIn"],
+      "frequency": 78
+    },
+    {
+      "id": 105,
+      "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Divide and Conquer", "Tree", "Binary Tree"],
+      "patterns": ["Divide & Conquer", "Tree Traversal"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 80
+    },
+    {
+      "id": 121,
+      "slug": "best-time-to-buy-and-sell-stock",
+      "title": "Best Time to Buy and Sell Stock",
+      "difficulty": "Easy",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming", "Greedy"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Google", "Goldman Sachs"],
+      "frequency": 92
+    },
+    {
+      "id": 124,
+      "slug": "binary-tree-maximum-path-sum",
+      "title": "Binary Tree Maximum Path Sum",
+      "difficulty": "Hard",
+      "topics": ["Dynamic Programming", "Tree", "Depth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "Dynamic Programming", "Tree Traversal"],
+      "companies": ["Meta", "Amazon", "Google", "Microsoft"],
+      "frequency": 85
+    },
+    {
+      "id": 125,
+      "slug": "valid-palindrome",
+      "title": "Valid Palindrome",
+      "difficulty": "Easy",
+      "topics": ["Two Pointers", "String"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Meta", "Amazon", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 127,
+      "slug": "word-ladder",
+      "title": "Word Ladder",
+      "difficulty": "Hard",
+      "topics": ["Hash Table", "String", "Breadth-First Search"],
+      "patterns": ["BFS", "Graph"],
+      "companies": ["Amazon", "Meta", "Google", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 128,
+      "slug": "longest-consecutive-sequence",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Union Find"],
+      "patterns": ["Hash Map", "Union Find"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft"],
+      "frequency": 85
+    },
+    {
+      "id": 130,
+      "slug": "surrounded-regions",
+      "title": "Surrounded Regions",
+      "difficulty": "Medium",
+      "topics": ["Array", "Depth-First Search", "Breadth-First Search", "Union Find", "Matrix"],
+      "patterns": ["DFS", "BFS", "Matrix"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 70
+    },
+    {
+      "id": 131,
+      "slug": "palindrome-partitioning",
+      "title": "Palindrome Partitioning",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming", "Backtracking"],
+      "patterns": ["Backtracking", "Dynamic Programming"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 72
+    },
+    {
+      "id": 133,
+      "slug": "clone-graph",
+      "title": "Clone Graph",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Depth-First Search", "Breadth-First Search", "Graph"],
+      "patterns": ["DFS", "BFS", "Graph"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 136,
+      "slug": "single-number",
+      "title": "Single Number",
+      "difficulty": "Easy",
+      "topics": ["Array", "Bit Manipulation"],
+      "patterns": ["Bit Manipulation"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 72
+    },
+    {
+      "id": 138,
+      "slug": "copy-list-with-random-pointer",
+      "title": "Copy List with Random Pointer",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Linked List"],
+      "patterns": ["Linked List", "Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 80
+    },
+    {
+      "id": 139,
+      "slug": "word-break",
+      "title": "Word Break",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "String", "Dynamic Programming", "Trie", "Memoization"],
+      "patterns": ["Dynamic Programming", "Trie"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "Bloomberg"],
+      "frequency": 88
+    },
+    {
+      "id": 141,
+      "slug": "linked-list-cycle",
+      "title": "Linked List Cycle",
+      "difficulty": "Easy",
+      "topics": ["Hash Table", "Linked List", "Two Pointers"],
+      "patterns": ["Fast & Slow Pointers", "Two Pointers"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 85
+    },
+    {
+      "id": 142,
+      "slug": "linked-list-cycle-ii",
+      "title": "Linked List Cycle II",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Linked List", "Two Pointers"],
+      "patterns": ["Fast & Slow Pointers", "Two Pointers"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 75
+    },
+    {
+      "id": 143,
+      "slug": "reorder-list",
+      "title": "Reorder List",
+      "difficulty": "Medium",
+      "topics": ["Linked List", "Two Pointers", "Stack", "Recursion"],
+      "patterns": ["Fast & Slow Pointers", "In-place Reversal", "Linked List"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 146,
+      "slug": "lru-cache",
+      "title": "LRU Cache",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Linked List", "Design", "Doubly-Linked List"],
+      "patterns": ["Hash Map", "Linked List"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "Bloomberg", "Apple"],
+      "frequency": 95
+    },
+    {
+      "id": 148,
+      "slug": "sort-list",
+      "title": "Sort List",
+      "difficulty": "Medium",
+      "topics": ["Linked List", "Two Pointers", "Divide and Conquer", "Sorting", "Merge Sort"],
+      "patterns": ["Divide & Conquer", "Linked List"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 72
+    },
+    {
+      "id": 150,
+      "slug": "evaluate-reverse-polish-notation",
+      "title": "Evaluate Reverse Polish Notation",
+      "difficulty": "Medium",
+      "topics": ["Array", "Math", "Stack"],
+      "patterns": ["Stack"],
+      "companies": ["Amazon", "Microsoft", "LinkedIn"],
+      "frequency": 70
+    },
+    {
+      "id": 152,
+      "slug": "maximum-product-subarray",
+      "title": "Maximum Product Subarray",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft", "LinkedIn", "Google"],
+      "frequency": 82
+    },
+    {
+      "id": 153,
+      "slug": "find-minimum-in-rotated-sorted-array",
+      "title": "Find Minimum in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "topics": ["Array", "Binary Search"],
+      "patterns": ["Binary Search", "Modified Binary Search"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 80
+    },
+    {
+      "id": 155,
+      "slug": "min-stack",
+      "title": "Min Stack",
+      "difficulty": "Medium",
+      "topics": ["Stack", "Design"],
+      "patterns": ["Stack"],
+      "companies": ["Amazon", "Microsoft", "Bloomberg"],
+      "frequency": 78
+    },
+    {
+      "id": 160,
+      "slug": "intersection-of-two-linked-lists",
+      "title": "Intersection of Two Linked Lists",
+      "difficulty": "Easy",
+      "topics": ["Hash Table", "Linked List", "Two Pointers"],
+      "patterns": ["Two Pointers", "Linked List"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 75
+    },
+    {
+      "id": 167,
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "title": "Two Sum II - Input Array Is Sorted",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Binary Search"],
+      "patterns": ["Two Pointers", "Binary Search"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 70
+    },
+    {
+      "id": 169,
+      "slug": "majority-element",
+      "title": "Majority Element",
+      "difficulty": "Easy",
+      "topics": ["Array", "Hash Table", "Divide and Conquer", "Sorting", "Counting"],
+      "patterns": ["Hash Map", "Divide & Conquer"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 72
+    },
+    {
+      "id": 189,
+      "slug": "rotate-array",
+      "title": "Rotate Array",
+      "difficulty": "Medium",
+      "topics": ["Array", "Math", "Two Pointers"],
+      "patterns": ["Two Pointers", "In-place Reversal"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 72
+    },
+    {
+      "id": 190,
+      "slug": "reverse-bits",
+      "title": "Reverse Bits",
+      "difficulty": "Easy",
+      "topics": ["Divide and Conquer", "Bit Manipulation"],
+      "patterns": ["Bit Manipulation"],
+      "companies": ["Amazon", "Apple"],
+      "frequency": 65
+    },
+    {
+      "id": 191,
+      "slug": "number-of-1-bits",
+      "title": "Number of 1 Bits",
+      "difficulty": "Easy",
+      "topics": ["Divide and Conquer", "Bit Manipulation"],
+      "patterns": ["Bit Manipulation"],
+      "companies": ["Amazon", "Apple"],
+      "frequency": 65
+    },
+    {
+      "id": 198,
+      "slug": "house-robber",
+      "title": "House Robber",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 85
+    },
+    {
+      "id": 199,
+      "slug": "binary-tree-right-side-view",
+      "title": "Binary Tree Right Side View",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Depth-First Search", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["BFS", "DFS", "Tree Traversal"],
+      "companies": ["Meta", "Amazon", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 200,
+      "slug": "number-of-islands",
+      "title": "Number of Islands",
+      "difficulty": "Medium",
+      "topics": ["Array", "Depth-First Search", "Breadth-First Search", "Union Find", "Matrix"],
+      "patterns": ["DFS", "BFS", "Union Find", "Matrix"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Google", "Bloomberg"],
+      "frequency": 95
+    },
+    {
+      "id": 206,
+      "slug": "reverse-linked-list",
+      "title": "Reverse Linked List",
+      "difficulty": "Easy",
+      "topics": ["Linked List", "Recursion"],
+      "patterns": ["In-place Reversal", "Linked List", "Recursion"],
+      "companies": ["Amazon", "Microsoft", "Apple", "Meta"],
+      "frequency": 90
+    },
+    {
+      "id": 207,
+      "slug": "course-schedule",
+      "title": "Course Schedule",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Graph", "Topological Sort"],
+      "patterns": ["Topological Sort", "DFS", "BFS", "Graph"],
+      "companies": ["Amazon", "Microsoft", "Meta", "Google"],
+      "frequency": 88
+    },
+    {
+      "id": 208,
+      "slug": "implement-trie-prefix-tree",
+      "title": "Implement Trie (Prefix Tree)",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Design", "Trie"],
+      "patterns": ["Trie"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 82
+    },
+    {
+      "id": 210,
+      "slug": "course-schedule-ii",
+      "title": "Course Schedule II",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Graph", "Topological Sort"],
+      "patterns": ["Topological Sort", "DFS", "BFS", "Graph"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 211,
+      "slug": "design-add-and-search-words-data-structure",
+      "title": "Design Add and Search Words Data Structure",
+      "difficulty": "Medium",
+      "topics": ["String", "Depth-First Search", "Design", "Trie"],
+      "patterns": ["Trie", "DFS"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 75
+    },
+    {
+      "id": 212,
+      "slug": "word-search-ii",
+      "title": "Word Search II",
+      "difficulty": "Hard",
+      "topics": ["Array", "String", "Backtracking", "Trie", "Matrix"],
+      "patterns": ["Trie", "Backtracking", "DFS"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 78
+    },
+    {
+      "id": 213,
+      "slug": "house-robber-ii",
+      "title": "House Robber II",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 75
+    },
+    {
+      "id": 215,
+      "slug": "kth-largest-element-in-an-array",
+      "title": "Kth Largest Element in an Array",
+      "difficulty": "Medium",
+      "topics": ["Array", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Quickselect"],
+      "patterns": ["Top K Elements", "Heap/Priority Queue", "Divide & Conquer"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google", "LinkedIn"],
+      "frequency": 92
+    },
+    {
+      "id": 217,
+      "slug": "contains-duplicate",
+      "title": "Contains Duplicate",
+      "difficulty": "Easy",
+      "topics": ["Array", "Hash Table", "Sorting"],
+      "patterns": ["Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Apple"],
+      "frequency": 75
+    },
+    {
+      "id": 226,
+      "slug": "invert-binary-tree",
+      "title": "Invert Binary Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "Breadth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "BFS", "Tree Traversal", "Recursion"],
+      "companies": ["Amazon", "Google", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 230,
+      "slug": "kth-smallest-element-in-a-bst",
+      "title": "Kth Smallest Element in a BST",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Depth-First Search", "Binary Search Tree", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 234,
+      "slug": "palindrome-linked-list",
+      "title": "Palindrome Linked List",
+      "difficulty": "Easy",
+      "topics": ["Linked List", "Two Pointers", "Stack", "Recursion"],
+      "patterns": ["Fast & Slow Pointers", "In-place Reversal", "Linked List"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 235,
+      "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+      "title": "Lowest Common Ancestor of a Binary Search Tree",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Depth-First Search", "Binary Search Tree", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 80
+    },
+    {
+      "id": 236,
+      "slug": "lowest-common-ancestor-of-a-binary-tree",
+      "title": "Lowest Common Ancestor of a Binary Tree",
+      "difficulty": "Medium",
+      "topics": ["Tree", "Depth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal", "Recursion"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google"],
+      "frequency": 88
+    },
+    {
+      "id": 238,
+      "slug": "product-of-array-except-self",
+      "title": "Product of Array Except Self",
+      "difficulty": "Medium",
+      "topics": ["Array", "Prefix Sum"],
+      "patterns": ["Prefix Sum"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Apple", "Google"],
+      "frequency": 90
+    },
+    {
+      "id": 239,
+      "slug": "sliding-window-maximum",
+      "title": "Sliding Window Maximum",
+      "difficulty": "Hard",
+      "topics": ["Array", "Queue", "Sliding Window", "Heap (Priority Queue)", "Monotonic Queue"],
+      "patterns": ["Sliding Window", "Monotonic Stack", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft"],
+      "frequency": 85
+    },
+    {
+      "id": 242,
+      "slug": "valid-anagram",
+      "title": "Valid Anagram",
+      "difficulty": "Easy",
+      "topics": ["Hash Table", "String", "Sorting"],
+      "patterns": ["Hash Map"],
+      "companies": ["Amazon", "Microsoft", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 252,
+      "slug": "meeting-rooms",
+      "title": "Meeting Rooms",
+      "difficulty": "Easy",
+      "topics": ["Array", "Sorting"],
+      "patterns": ["Merge Intervals"],
+      "companies": ["Amazon", "Meta", "Google"],
+      "frequency": 72,
+      "isPremium": true
+    },
+    {
+      "id": 253,
+      "slug": "meeting-rooms-ii",
+      "title": "Meeting Rooms II",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Greedy", "Sorting", "Heap (Priority Queue)", "Prefix Sum"],
+      "patterns": ["Merge Intervals", "Two Heaps", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Meta", "Google", "Bloomberg", "Microsoft"],
+      "frequency": 90,
+      "isPremium": true
+    },
+    {
+      "id": 261,
+      "slug": "graph-valid-tree",
+      "title": "Graph Valid Tree",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Union Find", "Graph"],
+      "patterns": ["Union Find", "DFS", "Graph"],
+      "companies": ["Amazon", "Google", "Meta"],
+      "frequency": 75,
+      "isPremium": true
+    },
+    {
+      "id": 268,
+      "slug": "missing-number",
+      "title": "Missing Number",
+      "difficulty": "Easy",
+      "topics": ["Array", "Hash Table", "Math", "Binary Search", "Bit Manipulation", "Sorting"],
+      "patterns": ["Cyclic Sort", "Bit Manipulation", "Math"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 70
+    },
+    {
+      "id": 269,
+      "slug": "alien-dictionary",
+      "title": "Alien Dictionary",
+      "difficulty": "Hard",
+      "topics": ["Array", "String", "Depth-First Search", "Breadth-First Search", "Graph", "Topological Sort"],
+      "patterns": ["Topological Sort", "Graph"],
+      "companies": ["Meta", "Amazon", "Google", "Microsoft"],
+      "frequency": 82,
+      "isPremium": true
+    },
+    {
+      "id": 271,
+      "slug": "encode-and-decode-strings",
+      "title": "Encode and Decode Strings",
+      "difficulty": "Medium",
+      "topics": ["Array", "String", "Design"],
+      "patterns": ["String Manipulation"],
+      "companies": ["Meta", "Google"],
+      "frequency": 75,
+      "isPremium": true
+    },
+    {
+      "id": 283,
+      "slug": "move-zeroes",
+      "title": "Move Zeroes",
+      "difficulty": "Easy",
+      "topics": ["Array", "Two Pointers"],
+      "patterns": ["Two Pointers"],
+      "companies": ["Meta", "Amazon", "Apple"],
+      "frequency": 78
+    },
+    {
+      "id": 287,
+      "slug": "find-the-duplicate-number",
+      "title": "Find the Duplicate Number",
+      "difficulty": "Medium",
+      "topics": ["Array", "Two Pointers", "Binary Search", "Bit Manipulation"],
+      "patterns": ["Fast & Slow Pointers", "Binary Search", "Cyclic Sort"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 78
+    },
+    {
+      "id": 295,
+      "slug": "find-median-from-data-stream",
+      "title": "Find Median from Data Stream",
+      "difficulty": "Hard",
+      "topics": ["Two Pointers", "Design", "Sorting", "Heap (Priority Queue)", "Data Stream"],
+      "patterns": ["Two Heaps", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Google", "Meta", "Microsoft", "Bloomberg"],
+      "frequency": 88
+    },
+    {
+      "id": 297,
+      "slug": "serialize-and-deserialize-binary-tree",
+      "title": "Serialize and Deserialize Binary Tree",
+      "difficulty": "Hard",
+      "topics": ["String", "Tree", "Depth-First Search", "Breadth-First Search", "Design", "Binary Tree"],
+      "patterns": ["DFS", "BFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google"],
+      "frequency": 85
+    },
+    {
+      "id": 300,
+      "slug": "longest-increasing-subsequence",
+      "title": "Longest Increasing Subsequence",
+      "difficulty": "Medium",
+      "topics": ["Array", "Binary Search", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming", "Binary Search"],
+      "companies": ["Amazon", "Microsoft", "Google"],
+      "frequency": 85
+    },
+    {
+      "id": 322,
+      "slug": "coin-change",
+      "title": "Coin Change",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming", "Breadth-First Search"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft", "Google", "Bloomberg"],
+      "frequency": 88
+    },
+    {
+      "id": 323,
+      "slug": "number-of-connected-components-in-an-undirected-graph",
+      "title": "Number of Connected Components in an Undirected Graph",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Union Find", "Graph"],
+      "patterns": ["Union Find", "DFS", "BFS", "Graph"],
+      "companies": ["Amazon", "Google", "Meta"],
+      "frequency": 78,
+      "isPremium": true
+    },
+    {
+      "id": 338,
+      "slug": "counting-bits",
+      "title": "Counting Bits",
+      "difficulty": "Easy",
+      "topics": ["Dynamic Programming", "Bit Manipulation"],
+      "patterns": ["Bit Manipulation", "Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 68
+    },
+    {
+      "id": 347,
+      "slug": "top-k-frequent-elements",
+      "title": "Top K Frequent Elements",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Bucket Sort", "Counting", "Quickselect"],
+      "patterns": ["Top K Elements", "Hash Map", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Meta", "Microsoft", "Google"],
+      "frequency": 90
+    },
+    {
+      "id": 371,
+      "slug": "sum-of-two-integers",
+      "title": "Sum of Two Integers",
+      "difficulty": "Medium",
+      "topics": ["Math", "Bit Manipulation"],
+      "patterns": ["Bit Manipulation"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 65
+    },
+    {
+      "id": 377,
+      "slug": "combination-sum-iv",
+      "title": "Combination Sum IV",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 72
+    },
+    {
+      "id": 380,
+      "slug": "insert-delete-getrandom-o1",
+      "title": "Insert Delete GetRandom O(1)",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Math", "Design", "Randomized"],
+      "patterns": ["Hash Map"],
+      "companies": ["Amazon", "Meta", "Microsoft", "LinkedIn"],
+      "frequency": 82
+    },
+    {
+      "id": 394,
+      "slug": "decode-string",
+      "title": "Decode String",
+      "difficulty": "Medium",
+      "topics": ["String", "Stack", "Recursion"],
+      "patterns": ["Stack", "Recursion"],
+      "companies": ["Amazon", "Google", "Bloomberg"],
+      "frequency": 82
+    },
+    {
+      "id": 417,
+      "slug": "pacific-atlantic-water-flow",
+      "title": "Pacific Atlantic Water Flow",
+      "difficulty": "Medium",
+      "topics": ["Array", "Depth-First Search", "Breadth-First Search", "Matrix"],
+      "patterns": ["DFS", "BFS", "Matrix"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 75
+    },
+    {
+      "id": 424,
+      "slug": "longest-repeating-character-replacement",
+      "title": "Longest Repeating Character Replacement",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Sliding Window"],
+      "patterns": ["Sliding Window"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 78
+    },
+    {
+      "id": 435,
+      "slug": "non-overlapping-intervals",
+      "title": "Non-overlapping Intervals",
+      "difficulty": "Medium",
+      "topics": ["Array", "Dynamic Programming", "Greedy", "Sorting"],
+      "patterns": ["Merge Intervals", "Greedy"],
+      "companies": ["Amazon", "Google", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 438,
+      "slug": "find-all-anagrams-in-a-string",
+      "title": "Find All Anagrams in a String",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Sliding Window"],
+      "patterns": ["Sliding Window", "Hash Map"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 82
+    },
+    {
+      "id": 543,
+      "slug": "diameter-of-binary-tree",
+      "title": "Diameter of Binary Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "Binary Tree"],
+      "patterns": ["DFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta", "Google"],
+      "frequency": 82
+    },
+    {
+      "id": 567,
+      "slug": "permutation-in-string",
+      "title": "Permutation in String",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Two Pointers", "String", "Sliding Window"],
+      "patterns": ["Sliding Window", "Hash Map"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 78
+    },
+    {
+      "id": 572,
+      "slug": "subtree-of-another-tree",
+      "title": "Subtree of Another Tree",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Depth-First Search", "String Matching", "Binary Tree", "Hash Function"],
+      "patterns": ["DFS", "Tree Traversal"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 75
+    },
+    {
+      "id": 621,
+      "slug": "task-scheduler",
+      "title": "Task Scheduler",
+      "difficulty": "Medium",
+      "topics": ["Array", "Hash Table", "Greedy", "Sorting", "Heap (Priority Queue)", "Counting"],
+      "patterns": ["Greedy", "Heap/Priority Queue"],
+      "companies": ["Meta", "Amazon", "Microsoft"],
+      "frequency": 82
+    },
+    {
+      "id": 647,
+      "slug": "palindromic-substrings",
+      "title": "Palindromic Substrings",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming", "Two Pointers"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 684,
+      "slug": "redundant-connection",
+      "title": "Redundant Connection",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Union Find", "Graph"],
+      "patterns": ["Union Find", "Graph"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 72
+    },
+    {
+      "id": 695,
+      "slug": "max-area-of-island",
+      "title": "Max Area of Island",
+      "difficulty": "Medium",
+      "topics": ["Array", "Depth-First Search", "Breadth-First Search", "Union Find", "Matrix"],
+      "patterns": ["DFS", "BFS", "Matrix"],
+      "companies": ["Amazon", "Meta", "Google"],
+      "frequency": 80
+    },
+    {
+      "id": 703,
+      "slug": "kth-largest-element-in-a-stream",
+      "title": "Kth Largest Element in a Stream",
+      "difficulty": "Easy",
+      "topics": ["Tree", "Design", "Binary Search Tree", "Heap (Priority Queue)", "Binary Tree", "Data Stream"],
+      "patterns": ["Top K Elements", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 72
+    },
+    {
+      "id": 724,
+      "slug": "find-pivot-index",
+      "title": "Find Pivot Index",
+      "difficulty": "Easy",
+      "topics": ["Array", "Prefix Sum"],
+      "patterns": ["Prefix Sum"],
+      "companies": ["Amazon", "Meta"],
+      "frequency": 70
+    },
+    {
+      "id": 739,
+      "slug": "daily-temperatures",
+      "title": "Daily Temperatures",
+      "difficulty": "Medium",
+      "topics": ["Array", "Stack", "Monotonic Stack"],
+      "patterns": ["Monotonic Stack", "Stack"],
+      "companies": ["Amazon", "Meta", "Google"],
+      "frequency": 82
+    },
+    {
+      "id": 743,
+      "slug": "network-delay-time",
+      "title": "Network Delay Time",
+      "difficulty": "Medium",
+      "topics": ["Depth-First Search", "Breadth-First Search", "Graph", "Heap (Priority Queue)", "Shortest Path"],
+      "patterns": ["Graph", "BFS"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 75
+    },
+    {
+      "id": 746,
+      "slug": "min-cost-climbing-stairs",
+      "title": "Min Cost Climbing Stairs",
+      "difficulty": "Easy",
+      "topics": ["Array", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 72
+    },
+    {
+      "id": 763,
+      "slug": "partition-labels",
+      "title": "Partition Labels",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "Two Pointers", "String", "Greedy"],
+      "patterns": ["Greedy", "Two Pointers"],
+      "companies": ["Amazon"],
+      "frequency": 72
+    },
+    {
+      "id": 787,
+      "slug": "cheapest-flights-within-k-stops",
+      "title": "Cheapest Flights Within K Stops",
+      "difficulty": "Medium",
+      "topics": ["Dynamic Programming", "Depth-First Search", "Breadth-First Search", "Graph", "Heap (Priority Queue)", "Shortest Path"],
+      "patterns": ["Graph", "BFS", "Dynamic Programming"],
+      "companies": ["Amazon", "Google", "Meta"],
+      "frequency": 78
+    },
+    {
+      "id": 853,
+      "slug": "car-fleet",
+      "title": "Car Fleet",
+      "difficulty": "Medium",
+      "topics": ["Array", "Stack", "Sorting", "Monotonic Stack"],
+      "patterns": ["Monotonic Stack", "Stack"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 72
+    },
+    {
+      "id": 875,
+      "slug": "koko-eating-bananas",
+      "title": "Koko Eating Bananas",
+      "difficulty": "Medium",
+      "topics": ["Array", "Binary Search"],
+      "patterns": ["Binary Search"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 75
+    },
+    {
+      "id": 973,
+      "slug": "k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "difficulty": "Medium",
+      "topics": ["Array", "Math", "Divide and Conquer", "Geometry", "Sorting", "Heap (Priority Queue)", "Quickselect"],
+      "patterns": ["Top K Elements", "Heap/Priority Queue"],
+      "companies": ["Amazon", "Meta", "Microsoft"],
+      "frequency": 85
+    },
+    {
+      "id": 981,
+      "slug": "time-based-key-value-store",
+      "title": "Time Based Key-Value Store",
+      "difficulty": "Medium",
+      "topics": ["Hash Table", "String", "Binary Search", "Design"],
+      "patterns": ["Binary Search", "Hash Map"],
+      "companies": ["Amazon", "Google", "Lyft"],
+      "frequency": 78
+    },
+    {
+      "id": 994,
+      "slug": "rotting-oranges",
+      "title": "Rotting Oranges",
+      "difficulty": "Medium",
+      "topics": ["Array", "Breadth-First Search", "Matrix"],
+      "patterns": ["BFS", "Matrix"],
+      "companies": ["Amazon", "Microsoft"],
+      "frequency": 82
+    },
+    {
+      "id": 1046,
+      "slug": "last-stone-weight",
+      "title": "Last Stone Weight",
+      "difficulty": "Easy",
+      "topics": ["Array", "Heap (Priority Queue)"],
+      "patterns": ["Heap/Priority Queue"],
+      "companies": ["Amazon"],
+      "frequency": 68
+    },
+    {
+      "id": 1143,
+      "slug": "longest-common-subsequence",
+      "title": "Longest Common Subsequence",
+      "difficulty": "Medium",
+      "topics": ["String", "Dynamic Programming"],
+      "patterns": ["Dynamic Programming"],
+      "companies": ["Amazon", "Google"],
+      "frequency": 82
+    },
+    {
+      "id": 1584,
+      "slug": "min-cost-to-connect-all-points",
+      "title": "Min Cost to Connect All Points",
+      "difficulty": "Medium",
+      "topics": ["Array", "Union Find", "Graph", "Minimum Spanning Tree"],
+      "patterns": ["Union Find", "Graph"],
+      "companies": ["Amazon"],
+      "frequency": 70
+    }
+  ]
+}

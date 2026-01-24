@@ -12,7 +12,7 @@
  * - SuggestLeetCodeProblemsOutput - The return type for the suggestLeetCodeProblems function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, createAiInstance} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SuggestLeetCodeProblemsInputSchema = z.object({
@@ -26,6 +26,10 @@ const SuggestLeetCodeProblemsInputSchema = z.object({
     .number()
     .default(5)
     .describe('The number of LeetCode problems to suggest.'),
+  additionalContext: z
+    .string()
+    .optional()
+    .describe('Additional context or preferences for problem suggestions.'),
 });
 export type SuggestLeetCodeProblemsInput = z.infer<
   typeof SuggestLeetCodeProblemsInputSchema
@@ -72,6 +76,11 @@ Bucket History:
 The user wants to focus on problems related to the topic: {{{topic}}}.
 {{/if}}
 
+{{#if additionalContext}}
+Additional context from the user:
+{{{additionalContext}}}
+{{/if}}
+
 Suggest {{{numberOfProblems}}} LeetCode problems that would help the user improve, along with a brief reason for each suggestion. Prioritize problems from topics where the user has more problems in the 'Tricky' and 'Repeat' buckets, and fewer in the 'Solved' bucket.  Also suggest problems of a similar type of previously correctly answered questions but of increasing difficulty.
 
 Output the list of suggested problems in JSON format:
@@ -97,7 +106,70 @@ const suggestLeetCodeProblemsFlow = ai.defineFlow(
     outputSchema: SuggestLeetCodeProblemsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Create a new AI instance with the next API key for each attempt
+        const aiInstance = createAiInstance();
+        const retryPrompt = aiInstance.definePrompt({
+          name: 'suggestLeetCodeProblemsPrompt',
+          input: {schema: SuggestLeetCodeProblemsInputSchema},
+          output: {schema: SuggestLeetCodeProblemsOutputSchema},
+          prompt: `You are an expert LeetCode problem recommender. Given a user's past performance on LeetCode problems, you will suggest problems that target their weaknesses.
+
+The user's past performance is represented by a bucket history. Each bucket represents a different status: To-Do, Solved, Repeat, Important, Tricky. The problems within each bucket are represented by their LeetCode problem IDs.
+
+Bucket History:
+{{#each bucketHistory}}
+  {{@key}}:
+    {{#each this}}
+      - {{this}}
+    {{/each}}
+{{/each}}
+
+{{#if topic}}
+The user wants to focus on problems related to the topic: {{{topic}}}.
+{{/if}}
+
+{{#if additionalContext}}
+Additional context from the user:
+{{{additionalContext}}}
+{{/if}}
+
+Suggest {{{numberOfProblems}}} LeetCode problems that would help the user improve, along with a brief reason for each suggestion. Prioritize problems from topics where the user has more problems in the 'Tricky' and 'Repeat' buckets, and fewer in the 'Solved' bucket. Also suggest problems of a similar type of previously correctly answered questions but of increasing difficulty.
+
+Output the list of suggested problems in JSON format:
+
+{
+  "suggestedProblems": [
+    {
+      "leetcodeProblemId": "",
+      "title": "",
+      "difficulty": "",
+      "url": "",
+      "reason": ""
+    }
+  ]
+}
+`,
+        });
+        
+        const {output} = await retryPrompt(input);
+        return output!;
+      } catch (error: any) {
+        lastError = error;
+        // Check if it's a rate limit error (429)
+        if (error?.status === 429 || error?.message?.includes('429') || error?.message?.includes('rate limit')) {
+          console.log(`Rate limit hit, retrying with next API key (attempt ${attempt + 1}/${maxRetries})`);
+          continue;
+        }
+        // For non-rate-limit errors, throw immediately
+        throw error;
+      }
+    }
+    
+    throw lastError || new Error('Failed after multiple retries');
   }
 );

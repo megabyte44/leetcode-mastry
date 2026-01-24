@@ -76,11 +76,11 @@ export async function addDailyQuestion(userId: string, formData: FormData) {
   if (!leetcodeId) {
     return { error: "LeetCode ID is required." };
   }
-  const link = `https://leetcode.com/problems/${leetcodeId.split(' ')[0]}/`;
+  const link = leetcodeId ? `https://leetcode.com/problems/${leetcodeId.split(' ')[0]}/` : undefined;
 
   await addDoc(collection(db, "users", userId, "dailyQuestions"), {
     leetcodeId: parseInt(leetcodeId, 10),
-    link,
+    ...(link && { link }),
     note,
     createdAt: serverTimestamp(),
   });
@@ -92,31 +92,66 @@ export async function deleteDailyQuestion(userId: string, id: string) {
 
 // Topic Questions Actions
 export async function addQuestionToTopic(userId: string, topicId: string, formData: FormData) {
+    const parseJsonArray = (value: FormDataEntryValue | null): string[] => {
+        if (!value) return [];
+        try {
+            return JSON.parse(value as string);
+        } catch {
+            return [];
+        }
+    };
+
     const questionData = {
         title: formData.get('title') as string,
         link: formData.get('link') as string,
         difficulty: formData.get('difficulty'),
         status: formData.get('status'),
-        personalNotes: formData.get('personalNotes'),
+        personalNotes: formData.get('personalNotes') || '',
+        confidence: formData.get('confidence') ? parseInt(formData.get('confidence') as string, 10) : undefined,
+        patterns: parseJsonArray(formData.get('patterns')),
+        topicTags: parseJsonArray(formData.get('topicTags')),
+        companies: parseJsonArray(formData.get('companies')),
+        timeComplexity: formData.get('timeComplexity') || '',
+        spaceComplexity: formData.get('spaceComplexity') || '',
+        approach: formData.get('approach') || '',
+        keyInsights: formData.get('keyInsights') || '',
     };
 
-    if(!questionData.title || !questionData.link || !questionData.difficulty || !questionData.status) {
+    if(!questionData.title || !questionData.difficulty || !questionData.status) {
         return { error: "Missing required fields." };
     }
 
     await addDoc(collection(db, "users", userId, "topics", topicId, "questions"), {
         ...questionData,
+        attemptCount: 1,
         createdAt: serverTimestamp(),
     });
 }
 
 export async function updateTopicQuestion(userId: string, topicId: string, questionId: string, formData: FormData) {
+    const parseJsonArray = (value: FormDataEntryValue | null): string[] => {
+        if (!value) return [];
+        try {
+            return JSON.parse(value as string);
+        } catch {
+            return [];
+        }
+    };
+
     const questionData: Partial<TopicQuestion> = {
         title: formData.get('title') as string,
         link: formData.get('link') as string,
         difficulty: formData.get('difficulty') as TopicQuestion['difficulty'],
         status: formData.get('status') as TopicQuestion['status'],
-        personalNotes: formData.get('personalNotes') as string,
+        personalNotes: formData.get('personalNotes') as string || '',
+        confidence: formData.get('confidence') ? parseInt(formData.get('confidence') as string, 10) : undefined,
+        patterns: parseJsonArray(formData.get('patterns')),
+        topicTags: parseJsonArray(formData.get('topicTags')),
+        companies: parseJsonArray(formData.get('companies')),
+        timeComplexity: formData.get('timeComplexity') as string || '',
+        spaceComplexity: formData.get('spaceComplexity') as string || '',
+        approach: formData.get('approach') as string || '',
+        keyInsights: formData.get('keyInsights') as string || '',
     };
     
     if (questionData.status === 'Solved') {
@@ -197,6 +232,53 @@ export async function getTopics(userId: string): Promise<Topic[]> {
   return querySnapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as Topic)
   );
+}
+
+export async function getTopicsWithStats(userId: string): Promise<import("@/lib/types").TopicWithStats[]> {
+  if (!userId) return [];
+
+  const q = query(
+    collection(db, "users", userId, "topics"),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(q);
+  
+  const topicsWithStats = await Promise.all(
+    querySnapshot.docs.map(async (topicDoc) => {
+      const topicData = { id: topicDoc.id, ...topicDoc.data() } as Topic;
+      
+      // Fetch questions for this topic
+      const questionsSnapshot = await getDocs(
+        collection(db, "users", userId, "topics", topicDoc.id, "questions")
+      );
+      
+      let solvedCount = 0;
+      let easyCount = 0;
+      let mediumCount = 0;
+      let hardCount = 0;
+      
+      questionsSnapshot.forEach((questionDoc) => {
+        const question = questionDoc.data() as TopicQuestion;
+        if (question.status === "Solved") solvedCount++;
+        if (question.difficulty === "Easy") easyCount++;
+        else if (question.difficulty === "Medium") mediumCount++;
+        else if (question.difficulty === "Hard") hardCount++;
+      });
+      
+      return {
+        ...topicData,
+        stats: {
+          totalQuestions: questionsSnapshot.size,
+          solvedCount,
+          easyCount,
+          mediumCount,
+          hardCount,
+        },
+      };
+    })
+  );
+  
+  return topicsWithStats;
 }
 
 export async function getDailyQuestions(userId: string): Promise<DailyQuestion[]> {

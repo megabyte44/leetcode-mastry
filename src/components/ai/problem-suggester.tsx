@@ -8,25 +8,18 @@ import * as z from "zod";
 import { suggestLeetCodeProblems, SuggestLeetCodeProblemsOutput } from "@/ai/flows/suggest-leetcode-problems";
 import { getAllUserProblems } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Lightbulb, ExternalLink, BrainCircuit } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Sparkles, ExternalLink, BrainCircuit } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 
 
 const formSchema = z.object({
   topic: z.string().optional(),
   numberOfProblems: z.coerce.number().min(1).max(10).default(5),
+  additionalContext: z.string().optional(),
 });
 
 export function AIProblemSuggester() {
@@ -40,6 +33,7 @@ export function AIProblemSuggester() {
     defaultValues: {
       topic: "",
       numberOfProblems: 5,
+      additionalContext: "",
     },
   });
 
@@ -67,84 +61,126 @@ export function AIProblemSuggester() {
     }
   };
 
+  const difficultyStyles: Record<string, string> = {
+    "easy": "text-emerald-600 dark:text-emerald-400",
+    "medium": "text-amber-600 dark:text-amber-400",
+    "hard": "text-red-600 dark:text-red-400",
+  };
+
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-1">
-            <Card>
-                <CardHeader>
-                <CardTitle className="font-headline">Get Suggestions</CardTitle>
-                <CardDescription>
-                    Fill in the details to get personalized problem recommendations.
-                </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div>
-                            <Label htmlFor="topic">Focus Topic (Optional)</Label>
-                            <Input id="topic" {...form.register("topic")} placeholder="e.g., Dynamic Programming" />
-                        </div>
-                        <div>
-                            <Label htmlFor="numberOfProblems">Number of Problems</Label>
-                            <Input id="numberOfProblems" type="number" {...form.register("numberOfProblems")} />
-                        </div>
-                        <Button type="submit" disabled={isLoading || !user} className="w-full">
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Lightbulb className="mr-2 h-4 w-4" />
-                            )}
-                            Suggest Problems
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
+    <div className="grid gap-6 lg:grid-cols-3">
+        {/* Input Form */}
+        <div className="lg:col-span-1">
+            <div className="rounded-xl border border-border/50 bg-card p-5">
+                <div className="space-y-1 mb-5">
+                    <h3 className="font-medium text-sm">Get Suggestions</h3>
+                    <p className="text-xs text-muted-foreground">
+                        AI will analyze your practice history
+                    </p>
+                </div>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="topic" className="text-sm font-medium">
+                            Focus Topic <span className="text-muted-foreground font-normal">(optional)</span>
+                        </Label>
+                        <Input 
+                            id="topic" 
+                            {...form.register("topic")} 
+                            placeholder="e.g., Dynamic Programming" 
+                            className="h-10"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="numberOfProblems" className="text-sm font-medium">
+                            Number of Problems
+                        </Label>
+                        <Input 
+                            id="numberOfProblems" 
+                            type="number" 
+                            {...form.register("numberOfProblems")} 
+                            className="h-10"
+                            min={1}
+                            max={10}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="additionalContext" className="text-sm font-medium">
+                            Additional Context <span className="text-muted-foreground font-normal">(optional)</span>
+                        </Label>
+                        <Textarea 
+                            id="additionalContext" 
+                            {...form.register("additionalContext")} 
+                            placeholder="e.g., I'm preparing for FAANG interviews, prefer problems with O(n) solutions, focus on sliding window patterns..."
+                            className="min-h-[80px] resize-none text-sm"
+                        />
+                    </div>
+                    <Button type="submit" disabled={isLoading || !user} className="w-full h-10">
+                        {isLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Sparkles className="mr-2 h-4 w-4" />
+                        )}
+                        Generate Suggestions
+                    </Button>
+                </form>
+            </div>
         </div>
 
-        <div className="md:col-span-2">
-            <Card className="min-h-[300px]">
-                <CardHeader>
-                    <CardTitle className="font-headline">Suggested Problems</CardTitle>
-                    <CardDescription>
-                        Here are some problems tailored for you to work on.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {isLoading && (
-                        <div className="flex items-center justify-center py-16">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {/* Results */}
+        <div className="lg:col-span-2">
+            <div className="rounded-xl border border-border/50 bg-card min-h-[300px]">
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary mb-3" />
+                        <p className="text-sm text-muted-foreground">Analyzing your practice history...</p>
+                    </div>
+                )}
+                {error && (
+                    <div className="flex items-center justify-center py-20">
+                        <p className="text-sm text-destructive">{error}</p>
+                    </div>
+                )}
+                {!isLoading && !error && !suggestions && (
+                    <div className="flex flex-col items-center justify-center py-20 px-4">
+                        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                            <BrainCircuit className="h-6 w-6 text-muted-foreground" />
                         </div>
-                    )}
-                    {error && <p className="text-destructive text-center py-16">{error}</p>}
-                    {!isLoading && !error && !suggestions && (
-                        <div className="text-center text-muted-foreground py-16">
-                            <BrainCircuit className="mx-auto h-12 w-12 text-gray-400" />
-                            <p className="mt-4">Your suggestions will appear here.</p>
-                        </div>
-                    )}
-                    {suggestions && (
-                        <ul className="space-y-4">
-                            {suggestions.suggestedProblems.map((problem) => (
-                                <li key={problem.leetcodeProblemId} className="rounded-lg border p-4">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <h3 className="font-semibold">{problem.title}</h3>
-                                            <p className="text-sm text-muted-foreground">{problem.reason}</p>
+                        <p className="text-sm font-medium text-foreground">Ready to suggest</p>
+                        <p className="text-xs text-muted-foreground mt-1 text-center">
+                            Configure your preferences and click generate
+                        </p>
+                    </div>
+                )}
+                {suggestions && (
+                    <div className="divide-y divide-border/50">
+                        {suggestions.suggestedProblems.map((problem, index) => (
+                            <div key={problem.leetcodeProblemId} className="p-4 hover:bg-muted/30 transition-colors">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1 min-w-0 space-y-1.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-muted-foreground font-medium">
+                                                #{index + 1}
+                                            </span>
+                                            <h4 className="font-medium text-sm">{problem.title}</h4>
                                         </div>
-                                        <Button asChild variant="ghost" size="sm">
-                                            <Link href={problem.url} target="_blank">
-                                                <ExternalLink className="h-4 w-4" />
-                                            </Link>
-                                        </Button>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                            {problem.reason}
+                                        </p>
+                                        <span className={`text-xs font-medium ${difficultyStyles[problem.difficulty.toLowerCase()] || 'text-muted-foreground'}`}>
+                                            {problem.difficulty}
+                                        </span>
                                     </div>
-                                    <div className="mt-2">
-                                        <Badge variant={problem.difficulty.toLowerCase() === 'easy' ? 'secondary' : problem.difficulty.toLowerCase() === 'medium' ? 'outline' : 'destructive'} className="border-none">{problem.difficulty}</Badge>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </CardContent>
-            </Card>
+                                    <Button asChild variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                                        <Link href={problem.url} target="_blank">
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     </div>
   );

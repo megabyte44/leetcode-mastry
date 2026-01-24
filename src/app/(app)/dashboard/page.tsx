@@ -5,19 +5,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Your daily challenges and topics at a glance.</p>
-      </div>
+    <div className="space-y-10 pb-8">
+      {/* Page Header */}
+      <header>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+          Dashboard
+        </h1>
+      </header>
 
-      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-        <DailyQuestions />
-      </Suspense>
+      {/* Daily Questions Section */}
+      <section>
+        <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+          <DailyQuestions />
+        </Suspense>
+      </section>
 
-      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-        <TopicsGrid />
-      </Suspense>
+      {/* Topics Section */}
+      <section>
+        <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+          <TopicsGrid />
+        </Suspense>
+      </section>
     </div>
   );
 }
