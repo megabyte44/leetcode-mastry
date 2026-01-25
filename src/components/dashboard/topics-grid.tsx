@@ -158,7 +158,6 @@ export function TopicsGrid() {
                 <AddTopicForm
                   userId={user.uid}
                   onTopicAdded={handleTopicAdded}
-                  }}
                 />
               )}
             </DialogContent>
