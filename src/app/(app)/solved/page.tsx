@@ -178,7 +178,7 @@ export default function SolvedProblemsPage() {
             body: JSON.stringify({
               userId: user.uid,
               topicId,
-              problemId: problem.odId?.toString() || problem.questionFrontendId,
+              problemId: problem.questionFrontendId || problem.odId?.toString(),
               title: problem.title,
               difficulty: problem.difficulty,
               titleSlug: problem.titleSlug,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { AppHeader } from "@/components/layout/header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { MobileBottomNav } from "@/components/layout/mobile-nav";
 import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
 import { Loader2 } from "lucide-react";
 
@@ -33,11 +34,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset className="flex flex-col min-h-screen">
         <AppHeader />
-        <main className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 overflow-y-auto scrollbar-thin pb-20 md:pb-0">
+          <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6 lg:px-6">
             {children}
           </div>
         </main>
+        <MobileBottomNav />
       </SidebarInset>
     </SidebarProvider>
   );

@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { useCachedTopicsWithStats } from "@/hooks/use-cache";
 import { TopicWithStats } from "@/lib/types";
-import { getTopicsWithStats, addTopic } from "@/lib/actions";
+import { addTopic } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
-import { Folder, Plus, Loader2, ChevronRight } from "lucide-react";
+import { Folder, Plus, Loader2, ChevronRight, Database } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "../ui/skeleton";
 import { Progress } from "../ui/progress";
+import { Badge } from "../ui/badge";
 
 function AddTopicForm({
   userId,
@@ -88,24 +90,24 @@ function AddTopicForm({
 
 export function TopicsGrid() {
   const { user, loading: authLoading } = useAuth();
-  const [topics, setTopics] = useState<TopicWithStats[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAddOpen, setAddOpen] = useState(false);
+  
+  // Use cached data hook instead of manual fetching
+  const { 
+    data: topics, 
+    isLoading: topicsLoading, 
+    error, 
+    refetch,
+    isFromCache 
+  } = useCachedTopicsWithStats(user?.uid);
 
-  const fetchTopics = () => {
-    if (user) {
-      setLoading(true);
-      getTopicsWithStats(user.uid)
-        .then(setTopics)
-        .finally(() => setLoading(false));
-    }
+  const loading = authLoading || topicsLoading;
+
+  const handleTopicAdded = async () => {
+    setAddOpen(false);
+    // Refetch data after adding new topic
+    await refetch();
   };
-
-  useEffect(() => {
-    if (!authLoading) {
-      fetchTopics();
-    }
-  }, [user, authLoading]);
 
   if (authLoading) {
     return <Skeleton className="h-96 w-full rounded-xl" />;
@@ -116,36 +118,52 @@ export function TopicsGrid() {
       {/* Section header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Topics</h2>
+          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            Topics
+            {isFromCache && (
+              <Badge variant="secondary" className="text-xs">
+                <Database className="h-3 w-3 mr-1" />
+                Cached
+              </Badge>
+            )}
+          </h2>
           <p className="text-sm text-muted-foreground">
             Organize problems by concept for focused revision
           </p>
         </div>
-        <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="h-8 px-3" disabled={!user}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
-              New Topic
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create Topic</DialogTitle>
-              <DialogDescription>
-                Group related problems together for better organization.
-              </DialogDescription>
-            </DialogHeader>
-            {user && (
-              <AddTopicForm
-                userId={user.uid}
-                onTopicAdded={() => {
-                  setAddOpen(false);
-                  fetchTopics();
-                }}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          {topics && topics.length > 0 && (
+            <Link href="/topics">
+              <Button variant="ghost" size="sm" className="h-8 px-3 text-muted-foreground hover:text-foreground">
+                View All
+                <ChevronRight className="ml-1 h-3 w-3" />
+              </Button>
+            </Link>
+          )}
+          <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-8 px-3" disabled={!user}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                New Topic
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create Topic</DialogTitle>
+                <DialogDescription>
+                  Group related problems together for better organization.
+                </DialogDescription>
+              </DialogHeader>
+              {user && (
+                <AddTopicForm
+                  userId={user.uid}
+                  onTopicAdded={handleTopicAdded}
+                  }}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Content */}
@@ -153,7 +171,14 @@ export function TopicsGrid() {
         <div className="flex justify-center items-center py-16">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
-      ) : topics.length > 0 ? (
+      ) : error ? (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-8 text-center">
+          <p className="text-sm text-destructive">Failed to load topics: {error}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      ) : topics && topics.length > 0 ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {topics.map((topic) => {
             const progress = topic.stats.totalQuestions > 0 

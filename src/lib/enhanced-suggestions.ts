@@ -98,28 +98,37 @@ function buildSuggestionPrompt(
     topics: (p.topicTags || []).slice(0, 3)
   }));
 
-  return `You are an expert LeetCode problem recommender.
+  return `🧠 You are a personalized LeetCode coach analyzing this user's specific coding journey.
 
-USER PROFILE:
+📊 DETAILED USER ANALYSIS:
 ${context}
 
-AVAILABLE UNSOLVED PROBLEMS (sample of ${unsolvedProblems.length}):
+🎯 CURATED PROBLEM POOL (${unsolvedProblems.length} available):
 ${JSON.stringify(problemSample, null, 2)}
 
-REQUEST:
-- Suggest ${input.numberOfProblems} problems
-${input.topic ? `- Focus on: ${input.topic}` : ""}
-${input.difficulty ? `- Preferred difficulty: ${input.difficulty}` : ""}
-${input.additionalContext ? `- Additional context: ${input.additionalContext}` : ""}
+📝 COACHING REQUEST:
+✅ Recommend ${input.numberOfProblems} strategic problems
+${input.topic ? `🎯 Focus mastery area: ${input.topic}` : ""}
+${input.difficulty ? `📈 Target difficulty: ${input.difficulty}` : ""}
+${input.additionalContext ? `💭 User's specific goal: ${input.additionalContext}` : ""}
 
-GUIDELINES:
-1. Prioritize topics the user is weak in (see progress above)
-2. Consider their recent solving patterns
-3. Match difficulty to their success rate
-4. Provide clear reasons for each suggestion
-5. Select from the available unsolved problems when possible
+🎯 COACHING METHODOLOGY:
+1. **Gap Analysis**: Identify specific weak patterns from user data
+2. **Progressive Learning**: Build from user's current skill level
+3. **Strategic Selection**: Choose problems that address real gaps, not random practice
+4. **Motivation Alignment**: Match problem interest to user's stated goals
+5. **Success Indicators**: Select problems where user can see clear progress
+6. **DIFFICULTY LIMIT**: NEVER suggest Hard problems. Stick to Easy and Medium only.
 
-Return your response in this exact JSON format:
+💡 COACHING INSIGHTS TO APPLY:
+- If user struggles with [specific topic]: Start with Easy pattern recognition, build to Medium applications
+- If user avoids [difficulty]: Bridge with intermediate Easy problems before Medium challenges  
+- If user repeatedly fails [concept]: Target foundational Easy understanding first
+- If user masters [area]: Challenge with advanced Medium applications and edge cases
+
+📋 SELECT ONLY FROM AVAILABLE UNSOLVED PROBLEMS ABOVE
+
+Respond with this EXACT JSON structure:
 {
   "suggestedProblems": [
     {
@@ -128,12 +137,14 @@ Return your response in this exact JSON format:
       "difficulty": "Easy",
       "url": "https://leetcode.com/problems/two-sum/",
       "topics": ["Array", "Hash Table"],
-      "reason": "Fundamental problem for hash map practice, builds foundation",
+      "reason": "🎯 SPECIFIC COACHING REASON: Based on your [specific weakness/pattern], this problem [specific benefit]. Next logical step after mastering this: [next problem type].",
       "priorityScore": 9
     }
   ],
-  "analysisInsights": "Brief 1-2 sentence analysis of what user should focus on"
-}`;
+  "analysisInsights": "🔍 Personalized insight: Your current focus should be [specific area] because [specific reason from their data]. This will unlock [specific next level skill]."
+}
+
+Make every recommendation laser-focused on their actual performance patterns, not generic advice.`;
 }
 
 // Main enhanced suggestion function

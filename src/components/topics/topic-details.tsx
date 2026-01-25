@@ -40,23 +40,14 @@ export default function TopicDetails({
   }, [initialNotes]);
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Back link */}
-      <Link 
-        href="/dashboard" 
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Dashboard
-      </Link>
-
+    <div className="space-y-3 pb-4">
       {/* Page header */}
       <header className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
           {topic.name}
         </h1>
         {topic.description && (
-          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl">
+          <p className="text-muted-foreground text-sm max-w-2xl">
             {topic.description}
           </p>
         )}
@@ -66,12 +57,12 @@ export default function TopicDetails({
       <Tabs 
         defaultValue="questions" 
         onValueChange={(value) => setActiveTab(value as "questions" | "notes")}
-        className="space-y-6"
+        className="space-y-3"
       >
-        <TabsList className="h-11 p-1 bg-muted/50">
+        <TabsList className="h-10 p-1 bg-muted/50 w-full sm:w-auto">
           <TabsTrigger 
             value="questions" 
-            className="gap-1.5 px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm touch-manipulation"
+            className="gap-1.5 px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm touch-manipulation flex-1 sm:flex-initial"
           >
             <ListChecks className="h-3.5 w-3.5" />
             <span className="hidden xs:inline">Questions</span>
@@ -80,7 +71,7 @@ export default function TopicDetails({
           </TabsTrigger>
           <TabsTrigger 
             value="notes" 
-            className="gap-1.5 px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm touch-manipulation"
+            className="gap-1.5 px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm touch-manipulation flex-1 sm:flex-initial"
           >
             <FileText className="h-3.5 w-3.5" />
             <span className="hidden xs:inline">Notes</span>

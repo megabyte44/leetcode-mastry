@@ -48,29 +48,31 @@ export function parseLeetCodeUrl(input: string): { id?: number; slug?: string } 
 /**
  * Get problem by ID
  */
-export function getProblemById(id: number): LeetCodeProblem | undefined {
-  return problemById.get(id);
+export async function getProblemById(id: number): Promise<LeetCodeProblem | undefined> {
+  await initializeProblemMaps();
+  return problemById?.get(id);
 }
 
 /**
  * Get problem by slug
  */
-export function getProblemBySlug(slug: string): LeetCodeProblem | undefined {
-  return problemBySlug.get(slug.toLowerCase());
+export async function getProblemBySlug(slug: string): Promise<LeetCodeProblem | undefined> {
+  await initializeProblemMaps();
+  return problemBySlug?.get(slug.toLowerCase());
 }
 
 /**
  * Auto-detect problem from URL or ID input
  */
-export function lookupProblem(input: string): LeetCodeProblem | undefined {
+export async function lookupProblem(input: string): Promise<LeetCodeProblem | undefined> {
   const parsed = parseLeetCodeUrl(input);
   
   if (parsed.id) {
-    return getProblemById(parsed.id);
+    return await getProblemById(parsed.id);
   }
   
   if (parsed.slug) {
-    return getProblemBySlug(parsed.slug);
+    return await getProblemBySlug(parsed.slug);
   }
   
   return undefined;

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { suggestLeetCodeProblems, SuggestLeetCodeProblemsOutput } from "@/ai/flows/suggest-leetcode-problems";
 import { getAllUserProblems, addAISuggestedToDailyQuestion, getTopicsWithStats } from "@/lib/actions";
+import { cache, CacheUtils } from "@/lib/cache";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,9 @@ const formSchema = z.object({
   additionalContext: z.string().optional(),
   targetDifficulty: z.string().optional(),
   focusArea: z.string().optional(),
+  includeWeakAreas: z.boolean().default(true),
+  prioritizeRecent: z.boolean().default(true),
+  adaptiveDifficulty: z.boolean().default(true),
 });
 
 const STORAGE_KEY = "ai-suggester-form-data";
@@ -69,6 +73,9 @@ export function AIProblemSuggester() {
       additionalContext: "",
       targetDifficulty: "any",
       focusArea: "weakness",
+      includeWeakAreas: true,
+      prioritizeRecent: true,
+      adaptiveDifficulty: true,
     },
   });
 
@@ -112,21 +119,45 @@ export function AIProblemSuggester() {
         getTopicsWithStats(user.uid)
       ]);
       
-      // Calculate personal statistics
+      // Calculate detailed personal statistics
+      const today = new Date();
+      const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      
       const stats = {
         totalSolved: userProblems.Solved?.length || 0,
         totalTricky: userProblems.Tricky?.length || 0,
         totalRepeat: userProblems.Repeat?.length || 0,
         totalImportant: userProblems.Important?.length || 0,
         totalToDo: userProblems['To-Do']?.length || 0,
+        
+        // Identify weakest areas with more context
         weakestAreas: userTopics
           .filter(topic => topic.stats.totalQuestions > 0)
-          .sort((a, b) => {
-            const aSuccess = a.stats.solvedCount / a.stats.totalQuestions;
-            const bSuccess = b.stats.solvedCount / b.stats.totalQuestions;
-            return aSuccess - bSuccess;
-          })
-          .slice(0, 5)
+          .map(topic => ({
+            ...topic,
+            successRate: topic.stats.solvedCount / topic.stats.totalQuestions,
+            needsWork: topic.stats.totalQuestions > 2 && topic.stats.solvedCount / topic.stats.totalQuestions < 0.6
+          }))
+          .sort((a, b) => a.successRate - b.successRate)
+          .slice(0, 8),
+          
+        // Calculate performance patterns
+        performancePatterns: {
+          trickyToSolvedRatio: (userProblems.Tricky?.length || 0) / Math.max(1, userProblems.Solved?.length || 1),
+          repeatToSolvedRatio: (userProblems.Repeat?.length || 0) / Math.max(1, userProblems.Solved?.length || 1),
+          toDoAccumulation: (userProblems['To-Do']?.length || 0) > 10,
+          strongInInterviews: (userProblems.Important?.length || 0) > 5,
+        },
+        
+        // Learning velocity indicators
+        recentActivity: {
+          hasRecentSolved: userProblems.Solved?.some(p => {
+            // This would need timestamp data, approximating with array position
+            return userProblems.Solved.indexOf(p) > Math.max(0, userProblems.Solved.length - 5);
+          }),
+          recentStruggles: userProblems.Tricky?.slice(-3) || [],
+          consistencyScore: Math.min(1, (userProblems.Solved?.length || 0) / Math.max(1, (userProblems['To-Do']?.length || 0) + (userProblems.Tricky?.length || 0))),
+        }
       };
       
       setPersonalStats(stats);
@@ -189,12 +220,63 @@ export function AIProblemSuggester() {
 
     try {
       const bucketHistory = await getAllUserProblems(user.uid);
-      const result = await suggestLeetCodeProblems({
+      
+      // Create enhanced cache key that includes personal context
+      const personalContext = {
+        stats: personalStats,
+        topicPrefs: values,
+        weakAreas: personalStats?.weakestAreas?.slice(0, 3).map(t => t.name) || [],
+        patterns: personalStats?.performancePatterns || {}
+      };
+      
+      const enhancedCacheKey = CacheUtils.createAICacheKey(
+        user.uid, 
+        bucketHistory, 
+        values.topic, 
+        `${values.additionalContext}_${JSON.stringify(personalContext)}_v2`
+      );
+      
+      // Try to get from cache first
+      const cachedResult = await cache.get('ai_suggestions', enhancedCacheKey);
+      if (cachedResult && !values.prioritizeRecent) {
+        setSuggestions(cachedResult);
+        console.log('Using cached personalized AI suggestions');
+        setIsLoading(false);
+        return;
+      }
+      
+      // If not in cache or prioritizing recent data, make API call
+      console.log('Making personalized AI API call...');
+      const enhancedInput = {
         ...values,
         bucketHistory,
-      });
+        personalStats,
+        topicPerformance: topics.reduce((acc, topic) => {
+          acc[topic.name] = {
+            solved: topic.stats.solvedCount,
+            total: topic.stats.totalQuestions,
+            successRate: topic.stats.totalQuestions > 0 ? topic.stats.solvedCount / topic.stats.totalQuestions : 0
+          };
+          return acc;
+        }, {} as Record<string, any>),
+        weakestAreas: personalStats?.weakestAreas?.filter(area => area.needsWork).map(area => area.name) || [],
+        learningVelocity: personalStats?.recentActivity || {},
+        userPreferences: {
+          includeWeakAreas: values.includeWeakAreas,
+          adaptiveDifficulty: values.adaptiveDifficulty,
+          focusArea: values.focusArea
+        }
+      };
+      
+      const result = await suggestLeetCodeProblems(enhancedInput);
+      
       setSuggestions(result);
-      // Save suggestions to localStorage for persistence
+      
+      // Cache the new result
+      await cache.set('ai_suggestions', enhancedCacheKey, result);
+      console.log('Cached new personalized AI suggestions');
+      
+      // Also save to localStorage as backup
       localStorage.setItem(SUGGESTIONS_STORAGE_KEY, JSON.stringify(result));
     } catch (e) {
       console.error(e);
@@ -204,13 +286,25 @@ export function AIProblemSuggester() {
     }
   };
 
-  const clearSuggestions = () => {
+  const clearSuggestions = async () => {
     setSuggestions(null);
     localStorage.removeItem(SUGGESTIONS_STORAGE_KEY);
-    toast({
-      title: "Suggestions Cleared",
-      description: "All AI suggestions have been cleared.",
-    });
+    
+    // Clear all AI suggestions from IndexedDB cache
+    try {
+      await cache.clear('ai_suggestions');
+      console.log('Cleared AI suggestions cache');
+      toast({
+        title: "Suggestions Cleared",
+        description: "All AI suggestions have been cleared from cache.",
+      });
+    } catch (error) {
+      console.error('Failed to clear AI cache:', error);
+      toast({
+        title: "Suggestions Cleared",
+        description: "All AI suggestions have been cleared.",
+      });
+    }
   };
 
   const difficultyStyles: Record<string, string> = {
@@ -280,11 +374,10 @@ export function AIProblemSuggester() {
                             <SelectValue placeholder="Any difficulty" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="any">Any Difficulty</SelectItem>
-                            <SelectItem value="easy">🟢 Easy</SelectItem>
-                            <SelectItem value="medium">🟡 Medium</SelectItem>
-                            <SelectItem value="hard">🔴 Hard</SelectItem>
-                            <SelectItem value="progressive">📈 Progressive (Easy→Hard)</SelectItem>
+                            <SelectItem value="any">Any Difficulty (Easy/Medium)</SelectItem>
+                            <SelectItem value="easy">🟢 Easy Only</SelectItem>
+                            <SelectItem value="medium">🟡 Medium Only</SelectItem>
+                            <SelectItem value="progressive">📈 Progressive (Easy→Medium)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -315,27 +408,136 @@ export function AIProblemSuggester() {
                         />
                       </div>
 
+                      {/* Personalization Options */}
+                      <div className="border rounded-lg p-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+                        <div className="flex items-center gap-2 mb-3">
+                          <BrainCircuit className="h-4 w-4 text-blue-500" />
+                          <Label className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            AI Personalization
+                          </Label>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="includeWeakAreas"
+                              {...form.register("includeWeakAreas")}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="includeWeakAreas" className="text-sm">
+                              🎯 Target my weakest topic areas
+                            </Label>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="prioritizeRecent"
+                              {...form.register("prioritizeRecent")}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="prioritizeRecent" className="text-sm">
+                              ⚡ Prioritize fresh suggestions over cached ones
+                            </Label>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="adaptiveDifficulty"
+                              {...form.register("adaptiveDifficulty")}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="adaptiveDifficulty" className="text-sm">
+                              📈 Adapt difficulty based on my success patterns
+                            </Label>
+                          </div>
+                        </div>
+                        
+                        {personalStats && (
+                          <div className="mt-3 p-2 bg-white/60 dark:bg-slate-800/60 rounded text-xs">
+                            <div className="grid grid-cols-2 gap-2 text-muted-foreground">
+                              <div>Solved: {personalStats.totalSolved}</div>
+                              <div>Tricky: {personalStats.totalTricky}</div>
+                              <div>Success Rate: {personalStats.recentActivity.consistencyScore > 0 ? Math.round(personalStats.recentActivity.consistencyScore * 100) : 0}%</div>
+                              <div className={personalStats.recentActivity.hasRecentSolved ? "text-green-600" : "text-orange-600"}>
+                                {personalStats.recentActivity.hasRecentSolved ? "🟢 Active" : "🟡 Inactive"}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="additionalContext" className="text-sm font-medium">
-                          Additional Context <span className="text-muted-foreground font-normal">(optional)</span>
+                          Specific Goals & Context <span className="text-muted-foreground font-normal">(be specific for better suggestions)</span>
                         </Label>
                         <Textarea 
                           id="additionalContext" 
                           {...form.register("additionalContext")} 
-                          placeholder="e.g., Preparing for Google interview, focus on tree patterns, struggling with optimization..."
-                          className="min-h-[80px] resize-none text-sm"
+                          placeholder="Examples:
+• 'Preparing for Meta interview in 2 weeks, struggling with tree traversal patterns'
+• 'Want to master sliding window, currently solve easy arrays but struggle with medium'
+• 'Focus on optimization - I can solve problems but time complexity is poor'
+• 'Avoid recursion-heavy problems, prefer iterative solutions'
+• 'Need to understand when to use different data structures'"
+                          className="min-h-[120px] resize-none text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">
+                          💡 The more specific you are, the better AI can tailor suggestions to your actual needs
+                        </p>
+                        
+                        {/* Quick Context Buttons */}
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => form.setValue("additionalContext", "Preparing for FAANG interviews in 3-4 weeks, need to focus on Easy to Medium problems with optimal solutions and clean code")}
+                            className="text-xs px-2 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                          >
+                            🚀 Interview Prep
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => form.setValue("additionalContext", "I can solve problems but my solutions are inefficient. Need help with optimization techniques and choosing right data structures")}
+                            className="text-xs px-2 py-1 rounded-md bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50"
+                          >
+                            ⚡ Optimization Focus
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => form.setValue("additionalContext", "Stuck at easy level, want to progressively tackle medium problems. Need bridge problems that build confidence without jumping to hard")}
+                            className="text-xs px-2 py-1 rounded-md bg-green-100 text-green-700 hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+                          >
+                            📈 Level Up
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => form.setValue("additionalContext", "Looking for pattern recognition - want to understand when and how to apply different algorithmic approaches")}
+                            className="text-xs px-2 py-1 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                          >
+                            🧩 Pattern Mastery
+                          </button>
+                        </div>
                       </div>
                     </div>
                     
-                    <Button type="submit" disabled={isLoading || !user} className="w-full h-11">
+                    <Button type="submit" disabled={isLoading || !user} className="w-full h-11 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                       {isLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <Brain className="mr-2 h-4 w-4" />
+                        <BrainCircuit className="mr-2 h-4 w-4" />
                       )}
-                      {isLoading ? "Analyzing..." : "Generate Smart Suggestions"}
+                      {isLoading ? "Personalizing..." : "Generate Personalized Suggestions"}
                     </Button>
+                    
+                    {personalStats && (
+                      <div className="mt-3 text-center">
+                        <p className="text-xs text-muted-foreground">
+                          🧠 AI will analyze your {personalStats.totalSolved} solved problems and {personalStats.weakestAreas.filter(a => a.needsWork).length} weak areas for personalized suggestions
+                        </p>
+                      </div>
+                    )}
                   </form>
                 </CardContent>
               </Card>
@@ -350,8 +552,8 @@ export function AIProblemSuggester() {
                       <div className="absolute inset-0 rounded-full bg-blue-400/20 animate-ping"></div>
                       <Loader2 className="relative h-8 w-8 animate-spin text-blue-500 mb-4" />
                     </div>
-                    <p className="text-sm font-medium">Analyzing your practice history...</p>
-                    <p className="text-xs text-muted-foreground mt-1">AI is crafting perfect suggestions ☁️</p>
+                    <p className="text-sm font-medium">Analyzing your personal practice patterns...</p>
+                    <p className="text-xs text-muted-foreground mt-1">AI is crafting suggestions based on your specific data 🧠</p>
                   </div>
                 )}
                 
@@ -366,12 +568,12 @@ export function AIProblemSuggester() {
                 {!isLoading && !error && !suggestions && (
                   <div className="flex flex-col items-center justify-center py-20 px-4">
                     <div className="relative h-16 w-16 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center mb-4 shadow-lg">
-                      <Cloud className="h-8 w-8 text-blue-500" />
+                      <BrainCircuit className="h-8 w-8 text-blue-500" />
                       <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-400/20 animate-pulse"></div>
                     </div>
-                    <p className="text-lg font-medium text-foreground">Ready to Generate Cloud Suggestions</p>
+                    <p className="text-lg font-medium text-foreground">Ready for Personalized AI Suggestions</p>
                     <p className="text-sm text-muted-foreground mt-2 text-center max-w-md">
-                      Configure your preferences above and let AI craft perfect recommendations that persist in your cloud ☁️
+                      Configure your preferences above and let AI analyze your unique practice patterns for tailored recommendations 🧠
                     </p>
                   </div>
                 )}
@@ -382,11 +584,11 @@ export function AIProblemSuggester() {
                       <div className="flex items-center justify-between">
                         <div>
                           <CardTitle className="flex items-center gap-2">
-                            <Cloud className="h-5 w-5 text-blue-500" />
-                            Smart Cloud Recommendations
+                            <BrainCircuit className="h-5 w-5 text-blue-500" />
+                            Personalized AI Recommendations
                           </CardTitle>
                           <CardDescription>
-                            Problems selected based on your practice patterns and goals
+                            Problems tailored to your specific practice history, weak areas, and learning patterns
                           </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">

@@ -280,38 +280,101 @@ function extractKeywords(text: string): string[] {
   return [...new Set([...found, ...words.map(w => w.toLowerCase())])];
 }
 
-// Format context as compact prompt
+// Format context as detailed, actionable prompt
 export function formatContextForPrompt(context: AIContext): string {
   const lines: string[] = [];
 
-  // User summary (compact)
-  lines.push(`## User Profile`);
-  lines.push(`- Solved: ${context.userSummary.totalSolved} (E:${context.userSummary.byDifficulty.easy} M:${context.userSummary.byDifficulty.medium} H:${context.userSummary.byDifficulty.hard})`);
+  // Detailed user analysis
+  lines.push(`🧠 CODER PROFILE ANALYSIS:`);
+  lines.push(`📊 Total Solved: ${context.userSummary.totalSolved} problems`);
+  lines.push(`   • Easy: ${context.userSummary.byDifficulty.easy} ✅ | Medium: ${context.userSummary.byDifficulty.medium} 🟡 | Hard: ${context.userSummary.byDifficulty.hard} 🔴`);
   
+  // Skill level assessment
+  const total = context.userSummary.totalSolved;
+  let skillLevel = "Beginner (0-50 problems)";
+  if (total > 200) skillLevel = "Expert (200+ problems)";
+  else if (total > 100) skillLevel = "Advanced (100-200 problems)";
+  else if (total > 50) skillLevel = "Intermediate (50-100 problems)";
+  
+  lines.push(`🎯 Skill Level: ${skillLevel}`);
+  
+  // Difficulty preference analysis
+  const easyRate = total > 0 ? Math.round((context.userSummary.byDifficulty.easy / total) * 100) : 0;
+  const mediumRate = total > 0 ? Math.round((context.userSummary.byDifficulty.medium / total) * 100) : 0;
+  const hardRate = total > 0 ? Math.round((context.userSummary.byDifficulty.hard / total) * 100) : 0;
+  
+  lines.push(`📈 Problem Distribution: ${easyRate}% Easy, ${mediumRate}% Medium, ${hardRate}% Hard`);
+  
+  if (hardRate < 10 && total > 20) {
+    lines.push(`✅ Smart Focus: User avoids Hard problems - this is good strategy for consistent progress`);
+  }
+  if (mediumRate < 30 && total > 10) {
+    lines.push(`📈 Growth Opportunity: Low Medium problem ratio - focus on Easy→Medium progression`);
+  }
+  
+  // Strengths analysis  
   if (context.userSummary.strongTopics.length > 0) {
-    lines.push(`- Strong: ${context.userSummary.strongTopics.join(", ")}`);
+    lines.push(`💪 MASTERED AREAS: ${context.userSummary.strongTopics.join(" • ")}`);
+    lines.push(`   Strategy: Build on these for advanced patterns and interview confidence`);
   }
   
+  // Weakness identification
   if (context.userSummary.weakTopics.length > 0) {
-    lines.push(`- Needs Practice: ${context.userSummary.weakTopics.join(", ")}`);
+    lines.push(`🎯 GROWTH OPPORTUNITIES: ${context.userSummary.weakTopics.join(" • ")}`);
+    lines.push(`   Strategy: These are high-impact learning areas for skill development`);
+  } else if (context.userSummary.strongTopics.length === 0 && total < 10) {
+    lines.push(`🌱 NEW CODER: Focus on fundamentals - Arrays, Strings, Basic Math`);
   }
 
-  // Relevant memories (if any)
+  // Recent activity patterns
+  if (context.userSummary.recentActivity.length > 0) {
+    lines.push(`🔄 RECENT MOMENTUM:`);
+    context.userSummary.recentActivity.forEach((activity, i) => {
+      lines.push(`   ${i + 1}. ${activity}`);
+    });
+    
+    // Pattern analysis
+    const recentEasy = context.userSummary.recentActivity.filter(a => a.includes('EASY')).length;
+    const recentHard = context.userSummary.recentActivity.filter(a => a.includes('HARD')).length;
+    
+    if (recentEasy === context.userSummary.recentActivity.length) {
+      lines.push(`   📊 Pattern: Staying in comfort zone - ready for difficulty increase`);
+    } else if (recentHard > 0) {
+      lines.push(`   📊 Pattern: Challenging themselves - maintain momentum`);
+    }
+  } else {
+    lines.push(`😴 INACTIVE: No recent solving activity - suggest motivating starter problems`);
+  }
+
+  // Learning insights from notes
   if (context.relevantMemories.length > 0) {
-    lines.push(`\n## User Notes`);
+    lines.push(`\n📝 USER'S LEARNING NOTES:`);
     context.relevantMemories.forEach(m => {
-      lines.push(`- [${m.type}] ${m.content}`);
+      lines.push(`• [${m.type.toUpperCase()}] ${m.content}`);
+      if (m.tags.length > 0) {
+        lines.push(`  Tags: ${m.tags.join(", ")}`);
+      }
     });
   }
 
-  // Suggested problems (if any)
+  // Contextual problems for reference
   if (context.relevantProblems.length > 0) {
-    lines.push(`\n## Relevant Problems`);
+    lines.push(`\n🔗 RELATED PROBLEMS CONTEXT:`);
     context.relevantProblems.forEach(p => {
-      const status = p.solved ? "✓" : "○";
-      lines.push(`- ${status} ${p.title} (${p.difficulty}) [${p.topics.join(", ")}]`);
+      const status = p.solved ? "✅ SOLVED" : "⏳ UNSOLVED";
+      lines.push(`• ${status}: "${p.title}" [${p.difficulty}] - Topics: ${p.topics.slice(0, 3).join(", ")}`);
     });
   }
+
+  // Focus area reminder
+  if (context.currentTopic) {
+    lines.push(`\n🎯 CURRENT LEARNING FOCUS: ${context.currentTopic}`);
+    lines.push(`   Tailor all suggestions to deepen understanding in this area`);
+  }
+
+  lines.push(`\n💡 COACHING PRIORITY: Use this detailed profile to make specific, targeted recommendations that address actual skill gaps and learning patterns.
+
+⚠️  STRICT DIFFICULTY LIMIT: NEVER suggest Hard problems. This user focuses exclusively on Easy and Medium problems for sustainable progress and confidence building.`);
 
   return lines.join("\n");
 }

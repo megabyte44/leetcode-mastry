@@ -17,6 +17,23 @@
   touch-action: manipulation;
 }
 
+/* Safe area support for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
 @layer base {
   :root {
     /* Premium, calm color palette - Apple/Notion/Linear inspired */
@@ -170,5 +187,41 @@
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground));
+  }
+  
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth momentum scrolling */
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide on mobile, show on desktop */
+  .hide-mobile {
+    @apply hidden md:block;
+  }
+  
+  /* Show on mobile, hide on desktop */
+  .show-mobile {
+    @apply block md:hidden;
+  }
+  
+  /* Mobile card styling */
+  .mobile-card {
+    @apply rounded-xl border border-border/50 bg-card touch-manipulation active:scale-[0.98] transition-transform;
+  }
+  
+  /* Swipe hint animation */
+  @keyframes swipe-hint {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-8px); }
+  }
+  
+  .swipe-hint {
+    animation: swipe-hint 1.5s ease-in-out 2;
   }
 }

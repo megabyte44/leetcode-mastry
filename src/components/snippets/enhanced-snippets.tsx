@@ -282,18 +282,18 @@ export function EnhancedSnippets() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Code Snippets</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Code Snippets</h1>
+          <p className="text-sm text-muted-foreground mt-1 hidden sm:block">
             Save and organize your frequently used code patterns
           </p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm}>
+            <Button onClick={resetForm} className="w-full sm:w-auto touch-manipulation">
               <Plus className="h-4 w-4 mr-2" />
               New Snippet
             </Button>
@@ -307,52 +307,54 @@ export function EnhancedSnippets() {
         </Dialog>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex gap-4">
-        <div className="flex-1 relative">
+      {/* Search and Filters - Mobile optimized */}
+      <div className="space-y-3">
+        <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search snippets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-10"
           />
         </div>
         
-        <Select value={filters.language || "all"} onValueChange={(value) => 
-          setFilters({...filters, language: value === "all" ? undefined : value as ProgrammingLanguage})}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Language" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Languages</SelectItem>
-            {LANGUAGES.map((lang) => (
-              <SelectItem key={lang.value} value={lang.value}>
-                {lang.icon} {lang.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+          <Select value={filters.language || "all"} onValueChange={(value) => 
+            setFilters({...filters, language: value === "all" ? undefined : value as ProgrammingLanguage})}>
+            <SelectTrigger className="w-32 sm:w-40 shrink-0 h-9">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Languages</SelectItem>
+              {LANGUAGES.map((lang) => (
+                <SelectItem key={lang.value} value={lang.value}>
+                  {lang.icon} {lang.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select value={filters.category || "all"} onValueChange={(value) => 
-          setFilters({...filters, category: value === "all" ? undefined : value})}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {CATEGORIES.map((cat) => (
-              <SelectItem key={cat.value} value={cat.value}>
-                {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={filters.category || "all"} onValueChange={(value) => 
+            setFilters({...filters, category: value === "all" ? undefined : value})}>
+            <SelectTrigger className="w-32 sm:w-40 shrink-0 h-9">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Snippets Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
@@ -370,15 +372,15 @@ export function EnhancedSnippets() {
           ))}
         </div>
       ) : snippets.length === 0 ? (
-        <Card className="text-center py-12">
+        <Card className="text-center py-10 sm:py-12">
           <CardContent>
-            <Code2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No snippets found</h3>
-            <p className="text-muted-foreground mb-4">
+            <Code2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-base sm:text-lg font-medium mb-2">No snippets found</h3>
+            <p className="text-sm text-muted-foreground mb-4 px-4">
               {searchQuery ? "Try adjusting your search or filters" : "Create your first code snippet to get started"}
             </p>
             {!searchQuery && (
-              <Button onClick={() => setIsCreateOpen(true)}>
+              <Button onClick={() => setIsCreateOpen(true)} className="touch-manipulation">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Snippet
               </Button>
@@ -386,7 +388,7 @@ export function EnhancedSnippets() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {snippets.map((snippet) => (
             <SnippetCard
               key={snippet.id}
@@ -441,71 +443,84 @@ function SnippetCard({
   const langInfo = LANGUAGES.find(l => l.value === snippet.language);
 
   return (
-    <Card className="group hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm font-medium truncate">
+    <Card className="group hover:shadow-md transition-shadow touch-manipulation active:scale-[0.98]">
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0" onClick={onView}>
+            <CardTitle className="text-sm font-medium truncate cursor-pointer">
               {snippet.title}
             </CardTitle>
             <CardDescription className="text-xs mt-1 line-clamp-2">
               {snippet.description || "No description"}
             </CardDescription>
           </div>
-          <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="sm" onClick={onView}>
-              <Eye className="h-3 w-3" />
+          {/* Actions - visible on mobile, hover on desktop */}
+          <div className="flex gap-0.5 sm:gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
+            <Button variant="ghost" size="icon" onClick={onView} className="h-8 w-8 touch-manipulation">
+              <Eye className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={onCopy}>
-              <Copy className="h-3 w-3" />
+            <Button variant="ghost" size="icon" onClick={onCopy} className="h-8 w-8 touch-manipulation">
+              <Copy className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={onEdit}>
-              <Edit className="h-3 w-3" />
+            <Button variant="ghost" size="icon" onClick={onEdit} className="h-8 w-8 touch-manipulation hidden sm:flex">
+              <Edit className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={onDelete}>
-              <Trash2 className="h-3 w-3" />
+            <Button variant="ghost" size="icon" onClick={onDelete} className="h-8 w-8 touch-manipulation hidden sm:flex">
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-          <span>{langInfo?.icon} {langInfo?.label}</span>
-          <Badge variant="secondary" className="text-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground mb-2 sm:mb-3 flex-wrap">
+          <span className="shrink-0">{langInfo?.icon} {langInfo?.label}</span>
+          <Badge variant="secondary" className="text-[10px] sm:text-xs">
             {snippet.category}
           </Badge>
           {snippet.difficulty && (
             <Badge variant={
               snippet.difficulty === "Easy" ? "default" :
               snippet.difficulty === "Medium" ? "secondary" : "destructive"
-            } className="text-xs">
+            } className="text-[10px] sm:text-xs">
               {snippet.difficulty}
             </Badge>
           )}
         </div>
 
-        <pre className="text-xs bg-muted rounded p-2 overflow-hidden line-clamp-4 font-mono">
+        <pre className="text-[11px] sm:text-xs bg-muted rounded p-2 overflow-hidden line-clamp-3 sm:line-clamp-4 font-mono">
           {snippet.code}
         </pre>
 
         {snippet.tags.length > 0 && (
-          <div className="flex gap-1 mt-3 flex-wrap">
-            {snippet.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs">
+          <div className="flex gap-1 mt-2 sm:mt-3 flex-wrap">
+            {snippet.tags.slice(0, 2).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-[10px] sm:text-xs">
                 {tag}
               </Badge>
             ))}
-            {snippet.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{snippet.tags.length - 3}
+            {snippet.tags.length > 2 && (
+              <Badge variant="outline" className="text-[10px] sm:text-xs">
+                +{snippet.tags.length - 2}
               </Badge>
             )}
           </div>
         )}
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-          <span>Used {snippet.usageCount || 0} times</span>
+        <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground mt-2 sm:mt-3">
+          <span>Used {snippet.usageCount || 0}x</span>
           <span>{new Date(snippet.updatedAt).toLocaleDateString()}</span>
+        </div>
+        
+        {/* Mobile-only edit/delete row */}
+        <div className="flex gap-2 mt-3 sm:hidden border-t pt-3">
+          <Button variant="outline" size="sm" onClick={onEdit} className="flex-1 h-9 touch-manipulation">
+            <Edit className="h-3.5 w-3.5 mr-1.5" />
+            Edit
+          </Button>
+          <Button variant="outline" size="sm" onClick={onDelete} className="flex-1 h-9 touch-manipulation text-destructive hover:text-destructive">
+            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+            Delete
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -525,32 +540,33 @@ function CreateEditDialog({
   isEditing: boolean;
 }) {
   return (
-    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-4 sm:p-6">
       <DialogHeader>
         <DialogTitle>{isEditing ? "Edit" : "Create"} Snippet</DialogTitle>
-        <DialogDescription>
+        <DialogDescription className="hidden sm:block">
           {isEditing ? "Update your code snippet" : "Create a new reusable code snippet"}
         </DialogDescription>
       </DialogHeader>
 
-      <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-3 sm:gap-4 py-2 sm:py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title" className="text-sm">Title *</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
               placeholder="e.g., Binary Search Template"
+              className="h-10 mt-1.5"
             />
           </div>
           <div>
-            <Label htmlFor="language">Language *</Label>
+            <Label htmlFor="language" className="text-sm">Language *</Label>
             <Select 
               value={formData.language} 
               onValueChange={(value) => setFormData({...formData, language: value})}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 mt-1.5">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -565,23 +581,24 @@ function CreateEditDialog({
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description" className="text-sm">Description</Label>
           <Input
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({...formData, description: e.target.value})}
             placeholder="Brief description of the snippet"
+            className="h-10 mt-1.5"
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           <div>
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="text-sm">Category</Label>
             <Select 
               value={formData.category} 
               onValueChange={(value) => setFormData({...formData, category: value})}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 mt-1.5">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -594,12 +611,12 @@ function CreateEditDialog({
             </Select>
           </div>
           <div>
-            <Label htmlFor="difficulty">Difficulty</Label>
+            <Label htmlFor="difficulty" className="text-sm">Difficulty</Label>
             <Select 
               value={formData.difficulty || "none"} 
               onValueChange={(value) => setFormData({...formData, difficulty: value === "none" ? "" : value})}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 mt-1.5">
                 <SelectValue placeholder="Optional" />
               </SelectTrigger>
               <SelectContent>

@@ -10,8 +10,10 @@ import {
   deleteDailyQuestion,
 } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, ExternalLink, Loader2, Zap, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -30,9 +32,11 @@ import { useToast } from "@/hooks/use-toast";
 
 function AddDailyQuestionForm({
   userId,
+  user,
   onQuestionAdded,
 }: {
   userId: string;
+  user: any;
   onQuestionAdded: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -256,6 +260,7 @@ export function DailyQuestions() {
             {user && (
               <AddDailyQuestionForm
                 userId={user.uid}
+                user={user}
                 onQuestionAdded={() => {
                   setAddOpen(false);
                   fetchQuestions();
@@ -277,33 +282,46 @@ export function DailyQuestions() {
             {questions.map((q) => (
               <li
                 key={q.id}
-                className="group flex items-center justify-between px-4 py-3 transition-colors hover:bg-muted/50"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-3 transition-colors hover:bg-muted/50 touch-manipulation"
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary text-xs font-semibold">
+                  <div className="flex h-10 w-10 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary text-sm sm:text-xs font-semibold">
                     {q.leetcodeId}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
                       {q.link ? (
                         <Link
                           href={q.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors"
+                          className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors touch-manipulation"
                         >
-                          {(q as any).title || `Problem ${q.leetcodeId}`}
-                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                          <span className="line-clamp-1">{(q as any).title || `Problem ${q.leetcodeId}`}</span>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
                         </Link>
                       ) : (
-                        <span className="flex items-center gap-1.5 text-sm font-medium">
+                        <span className="text-sm font-medium line-clamp-1">
                           {(q as any).title || `Problem ${q.leetcodeId}`}
                         </span>
                       )}
+                      {(q as any).difficulty && (
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "text-[10px] px-1.5 py-0 shrink-0",
+                            (q as any).difficulty === 'Easy' && "text-green-600 border-green-200 bg-green-50",
+                            (q as any).difficulty === 'Medium' && "text-yellow-600 border-yellow-200 bg-yellow-50",
+                            (q as any).difficulty === 'Hard' && "text-red-600 border-red-200 bg-red-50"
+                          )}
+                        >
+                          {(q as any).difficulty}
+                        </Badge>
+                      )}
                       {(q as any).source === 'ai-suggestion' && (
-                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
-                          <Zap className="h-3 w-3" />
-                          AI Pick
+                        <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-medium rounded-full shrink-0">
+                          <Zap className="h-2.5 w-2.5" />
+                          AI
                         </div>
                       )}
                     </div>
@@ -314,11 +332,12 @@ export function DailyQuestions() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Actions - always visible on mobile */}
+                <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-3 pl-12 sm:pl-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-7 px-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                    className="h-8 sm:h-7 px-3 sm:px-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200 touch-manipulation flex-1 sm:flex-none"
                     onClick={async () => {
                       try {
                         const response = await fetch('/api/solved', {
@@ -343,16 +362,17 @@ export function DailyQuestions() {
                       }
                     }}
                   >
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Done
+                    <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                    <span className="sm:hidden">Mark Done</span>
+                    <span className="hidden sm:inline">Done</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 touch-manipulation"
                     onClick={() => handleDelete(q.id)}
                   >
-                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                     <span className="sr-only">Delete</span>
                   </Button>
                 </div>

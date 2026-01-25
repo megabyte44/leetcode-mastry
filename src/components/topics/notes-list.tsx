@@ -125,22 +125,22 @@ export function NotesList({ notes, topicId, topicName, onDataRefresh }: NotesLis
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Notes for {topicName}</h3>
-          <p className="text-sm text-muted-foreground">
+    <div className="space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold">Notes for {topicName}</h3>
+          <p className="text-xs text-muted-foreground">
             Store insights, patterns, and code snippets for this topic
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+            <Button size="sm" className="shrink-0 h-8">
+              <Plus className="h-3.5 w-3.5 mr-1" />
               Add Note
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Note</DialogTitle>
               <DialogDescription>
@@ -156,24 +156,20 @@ export function NotesList({ notes, topicId, topicName, onDataRefresh }: NotesLis
       </div>
 
       {notes.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileText className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <p className="text-sm font-medium">No notes yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Add your first note to start building your knowledge base
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-border/50 bg-card p-8 text-center">
+          <div className="mx-auto h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium">No notes yet</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Add your first note to start building your knowledge base
+          </p>
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {notes.map((note) => (
-            <Card key={note.id}>
-              <CardHeader className="pb-3">
+            <Card key={note.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm flex items-center gap-2">
                     {note.type === 'code' ? (
@@ -219,17 +215,17 @@ export function NotesList({ notes, topicId, topicName, onDataRefresh }: NotesLis
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className={`rounded-lg p-4 ${
+              <CardContent className="pt-0">
+                <div className={`rounded-md p-3 ${
                   note.type === 'code' 
                     ? 'bg-slate-50 dark:bg-slate-900/50 border font-mono text-sm' 
                     : 'bg-muted/30'
                 }`}>
-                  <pre className={`whitespace-pre-wrap ${note.type === 'code' ? 'font-mono' : 'font-sans'}`}>
+                  <pre className={`whitespace-pre-wrap leading-relaxed ${note.type === 'code' ? 'font-mono text-sm' : 'font-sans text-sm'}`}>
                     {note.content}
                   </pre>
                 </div>
-                <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between mt-2 pt-2 text-xs text-muted-foreground border-t">
                   <span>
                     Created {note.createdAt.toDate().toLocaleDateString()}
                   </span>

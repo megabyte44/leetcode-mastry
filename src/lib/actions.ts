@@ -2,6 +2,7 @@
 "use client";
 
 import { db } from "@/lib/firebase";
+import { cache, CacheUtils } from "@/lib/cache";
 import {
   collection,
   addDoc,
@@ -38,6 +39,13 @@ export async function addTopic(userId: string, formData: FormData) {
     description,
     createdAt: serverTimestamp(),
   });
+  
+  // Invalidate cache
+  try {
+    await CacheUtils.invalidateUserCache(userId);
+  } catch (error) {
+    console.error('Failed to invalidate cache after adding topic:', error);
+  }
 }
 
 export async function updateTopic(userId: string, topicId: string, formData: FormData) {
@@ -50,6 +58,13 @@ export async function updateTopic(userId: string, topicId: string, formData: For
 
   const topicRef = doc(db, "users", userId, "topics", topicId);
   await updateDoc(topicRef, { name, description });
+  
+  // Invalidate cache
+  try {
+    await CacheUtils.invalidateUserCache(userId);
+  } catch (error) {
+    console.error('Failed to invalidate cache after updating topic:', error);
+  }
 }
 
 export async function deleteTopic(userId: string, topicId: string) {
@@ -65,6 +80,13 @@ export async function deleteTopic(userId: string, topicId: string) {
     batch.delete(topicRef);
     
     await batch.commit();
+    
+    // Invalidate cache
+    try {
+      await CacheUtils.invalidateUserCache(userId);
+    } catch (error) {
+      console.error('Failed to invalidate cache after deleting topic:', error);
+    }
 }
 
 
@@ -229,6 +251,21 @@ export async function deleteNoteFromTopic(userId: string, topicId: string, noteI
 
 export async function getAllUserProblems(userId: string) {
   if (!userId) return {};
+  
+  const cacheKey = CacheUtils.createUserCacheKey(userId, 'problems');
+  
+  try {
+    // Try cache first
+    const cached = await cache.get('user_progress', cacheKey);
+    if (cached) {
+      console.log('Using cached user problems data');
+      return cached;
+    }
+  } catch (error) {
+    console.error('Cache read failed, fetching from Firebase:', error);
+  }
+  
+  // Fetch from Firebase
   const topicsSnapshot = await getDocs(collection(db, "users", userId, "topics"));
   const allProblems: Record<string, string[]> = {
     "To-Do": [],
@@ -247,20 +284,50 @@ export async function getAllUserProblems(userId: string) {
       }
     });
   }
+  
+  // Cache the result
+  try {
+    await cache.set('user_progress', cacheKey, allProblems);
+  } catch (error) {
+    console.error('Failed to cache user problems:', error);
+  }
+  
   return allProblems;
 }
 
 export async function getTopics(userId: string): Promise<Topic[]> {
   if (!userId) return [];
+  
+  const cacheKey = CacheUtils.createUserCacheKey(userId, 'topics');
+  
+  try {
+    // Try cache first
+    const cached = await cache.get('user_topics', cacheKey);
+    if (cached) {
+      console.log('Using cached topics data');
+      return cached;
+    }
+  } catch (error) {
+    console.error('Cache read failed, fetching topics from Firebase:', error);
+  }
 
   const q = query(
     collection(db, "users", userId, "topics"),
     orderBy("createdAt", "desc")
   );
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(
+  const topics = querySnapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as Topic)
   );
+  
+  // Cache the result
+  try {
+    await cache.set('user_topics', cacheKey, topics);
+  } catch (error) {
+    console.error('Failed to cache topics:', error);
+  }
+  
+  return topics;
 }
 
 export async function getTopicsWithStats(userId: string): Promise<import("@/lib/types").TopicWithStats[]> {
@@ -312,13 +379,35 @@ export async function getTopicsWithStats(userId: string): Promise<import("@/lib/
 
 export async function getDailyQuestions(userId: string): Promise<DailyQuestion[]> {
   if (!userId) return [];
+  
+  const cacheKey = CacheUtils.createUserCacheKey(userId, 'daily');
+  
+  try {
+    // Try cache first
+    const cached = await cache.get('daily_questions', cacheKey);
+    if (cached) {
+      console.log('Using cached daily questions data');
+      return cached;
+    }
+  } catch (error) {
+    console.error('Cache read failed, fetching daily questions from Firebase:', error);
+  }
 
   const q = query(
     collection(db, "users", userId, "dailyQuestions"),
     orderBy("createdAt", "desc")
   );
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(
+  const dailyQuestions = querySnapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as DailyQuestion)
   );
+  
+  // Cache the result
+  try {
+    await cache.set('daily_questions', cacheKey, dailyQuestions);
+  } catch (error) {
+    console.error('Failed to cache daily questions:', error);
+  }
+  
+  return dailyQuestions;
 }

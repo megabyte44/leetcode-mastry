@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Code2, LayoutDashboard, Brain, RotateCcw, Database, Settings, CheckCircle2 } from "lucide-react";
+import { BrainCircuit, Code2, LayoutDashboard, Brain, RotateCcw, Database, Settings, CheckCircle2, BookOpen } from "lucide-react";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -23,6 +23,11 @@ export function AppSidebar() {
       href: "/dashboard",
       label: "Dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      href: "/topics",
+      label: "Topics",
+      icon: BookOpen,
     },
     {
       href: "/solved",
