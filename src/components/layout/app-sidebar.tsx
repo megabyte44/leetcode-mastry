@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Code2, LayoutDashboard, Brain, RotateCcw } from "lucide-react";
+import { BrainCircuit, Code2, LayoutDashboard, Brain, RotateCcw, Database, Settings } from "lucide-react";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -46,6 +46,14 @@ export function AppSidebar() {
       href: "/memory-bank",
       label: "Memory Bank",
       icon: Brain,
+    },
+  ];
+
+  const adminMenuItems = [
+    {
+      href: "/admin/problems-import",
+      label: "Problems Import",
+      icon: Database,
     },
   ];
 
@@ -96,6 +104,27 @@ export function AppSidebar() {
           <SidebarGroupLabel>Learning</SidebarGroupLabel>
           <SidebarMenu>
             {learningMenuItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={item.label}
+                  className="h-10 rounded-lg px-3 font-medium"
+                >
+                  <Link href={item.href}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarMenu>
+            {adminMenuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild

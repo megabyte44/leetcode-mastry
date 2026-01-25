@@ -17,22 +17,78 @@ export interface MongoMemory {
   updatedAt?: Date;
 }
 
-// Extract tags from content based on known patterns and topics
-function extractTags(content: string): string[] {
+// Enhanced tag extraction using MongoDB problems database
+async function extractTags(content: string): Promise<string[]> {
   const foundTags: string[] = [];
   const lowerContent = content.toLowerCase();
   
-  // Check for pattern matches
-  for (const pattern of patterns) {
-    if (lowerContent.includes(pattern.toLowerCase())) {
-      foundTags.push(pattern);
+  try {
+    const db = await getDatabase();
+    
+    // Check for pattern matches (static patterns)
+    for (const pattern of patterns) {
+      if (lowerContent.includes(pattern.toLowerCase())) {
+        foundTags.push(pattern);
+      }
     }
-  }
-  
-  // Check for topic matches
-  for (const topic of topicTags) {
-    if (lowerContent.includes(topic.toLowerCase())) {
-      foundTags.push(topic);
+    
+    // Check for topic matches from MongoDB problems
+    if (db) {
+      // Get all unique topic tags from MongoDB
+      const mongoTopics = await db.collection(COLLECTIONS.PROBLEMS)
+        .distinct('topicTags');
+      
+      // Check for topic matches
+      for (const topic of mongoTopics) {
+        if (lowerContent.includes(topic.toLowerCase())) {
+          foundTags.push(topic);
+        }
+      }
+    } else {
+      // Fallback to static topic tags if DB not available
+      for (const topic of topicTags) {
+        if (lowerContent.includes(topic.toLowerCase())) {
+          foundTags.push(topic);
+        }
+      }
+    }
+    
+    // Check for problem references by title or number
+    if (db) {
+      const problemRegex = /(?:problem\s*#?(\d+)|leetcode\s*(\d+)|(\d+)\.\s*([a-zA-Z\s]+))/gi;
+      let match;
+      
+      while ((match = problemRegex.exec(content)) !== null) {
+        const problemId = match[1] || match[2];
+        const problemTitle = match[4];
+        
+        if (problemId) {
+          const problem = await db.collection(COLLECTIONS.PROBLEMS)
+            .findOne({ problemId: parseInt(problemId) });
+          
+          if (problem) {
+            foundTags.push(...problem.topicTags.slice(0, 3)); // Add first 3 topics from the problem
+          }
+        }
+        
+        if (problemTitle) {
+          const problem = await db.collection(COLLECTIONS.PROBLEMS)
+            .findOne({ title: { $regex: problemTitle.trim(), $options: 'i' } });
+          
+          if (problem) {
+            foundTags.push(...problem.topicTags.slice(0, 3));
+          }
+        }
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error in enhanced tag extraction:", error);
+    // Fallback to basic extraction
+    for (const topic of topicTags) {
+      if (lowerContent.includes(topic.toLowerCase())) {
+        foundTags.push(topic);
+      }
     }
   }
   
@@ -52,7 +108,7 @@ export async function addMemory(
       return { success: false, error: "Database not available" };
     }
 
-    const autoTags = extractTags(content);
+    const autoTags = await extractTags(content);
     const tags = customTags && customTags.length > 0 ? customTags : autoTags;
 
     const memory: MongoMemory = {
@@ -211,7 +267,7 @@ export async function getMemoryStats(
       pattern: 0,
       tip: 0,
     };
-    
+
     let total = 0;
     for (const result of results) {
       stats[result._id as MemoryType] = result.count;
@@ -222,6 +278,43 @@ export async function getMemoryStats(
   } catch (error) {
     console.error("Failed to get memory stats:", error);
     return { success: false, error: "Failed to get memory stats" };
+  }
+}
+
+// Get suggested tags for content (for UI preview)
+export async function getSuggestedTags(content: string): Promise<{
+  success: boolean;
+  tags?: string[];
+  error?: string;
+}> {
+  try {
+    const tags = await extractTags(content);
+    return { success: true, tags };
+  } catch (error) {
+    console.error("Failed to get suggested tags:", error);
+    return { success: false, error: "Failed to get suggested tags" };
+  }
+}
+
+// Get all unique tags used by the user (for autocomplete)
+export async function getUserTags(userId: string): Promise<{
+  success: boolean;
+  tags?: string[];
+  error?: string;
+}> {
+  try {
+    const db = await getDatabase();
+    if (!db) {
+      return { success: false, error: "Database not available" };
+    }
+
+    const tags = await db.collection(COLLECTIONS.MEMORIES)
+      .distinct('tags', { userId });
+
+    return { success: true, tags: tags.sort() };
+  } catch (error) {
+    console.error("Failed to get user tags:", error);
+    return { success: false, error: "Failed to get user tags" };
   }
 }
 
