@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Topic, TopicQuestion, TopicNote } from "@/lib/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuestionList } from "./question-list";
+import { NotesList } from "./notes-list";
 import { ArrowLeft, ListChecks, FileText } from "lucide-react";
 import Link from "next/link";
 
@@ -79,13 +80,12 @@ export default function TopicDetails({
           </TabsTrigger>
           <TabsTrigger 
             value="notes" 
-            disabled
             className="gap-1.5 px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm touch-manipulation"
           >
             <FileText className="h-3.5 w-3.5" />
             <span className="hidden xs:inline">Notes</span>
             <span className="xs:hidden">N</span>
-            <span className="ml-1 text-xs text-muted-foreground">(Soon)</span>
+            <span className="ml-1 text-xs text-muted-foreground">({notes.length})</span>
           </TabsTrigger>
         </TabsList>
         
@@ -94,15 +94,12 @@ export default function TopicDetails({
         </TabsContent>
         
         <TabsContent value="notes" className="mt-0">
-          <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
-            <div className="mx-auto h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
-              <FileText className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <p className="text-sm font-medium">Notes coming soon</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Text, pseudocode, and snippets for {topic.name}
-            </p>
-          </div>
+          <NotesList 
+            notes={notes} 
+            topicId={topic.id} 
+            topicName={topic.name}
+            onDataRefresh={onDataRefresh}
+          />
         </TabsContent>
       </Tabs>
     </div>

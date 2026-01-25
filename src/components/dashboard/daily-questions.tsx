@@ -10,7 +10,7 @@ import {
   deleteDailyQuestion,
 } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Loader2, Zap, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -25,6 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "../ui/skeleton";
+import { getProblemById } from "@/lib/problem-lookup";
+import { useToast } from "@/hooks/use-toast";
 
 function AddDailyQuestionForm({
   userId,
@@ -34,14 +36,89 @@ function AddDailyQuestionForm({
   onQuestionAdded: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [leetcodeId, setLeetcodeId] = useState("");
+  const [problemDetails, setProblemDetails] = useState<any>(null);
+  const [note, setNote] = useState("");
+  const { toast } = useToast();
+
+  // Auto-fetch problem details when ID is entered
+  useEffect(() => {
+    if (leetcodeId && /^\d+$/.test(leetcodeId.trim())) {
+      const problem = getProblemById(parseInt(leetcodeId.trim()));
+      if (problem) {
+        setProblemDetails(problem);
+      } else {
+        setProblemDetails(null);
+      }
+    } else {
+      setProblemDetails(null);
+    }
+  }, [leetcodeId]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    
     startTransition(async () => {
+      const formData = new FormData();
+      formData.append('leetcodeId', leetcodeId);
+      formData.append('note', note);
+      if (problemDetails) {
+        formData.append('title', problemDetails.title);
+        formData.append('difficulty', problemDetails.difficulty);
+        formData.append('titleSlug', problemDetails.titleSlug || problemDetails.slug || '');
+      }
+      
       await addDailyQuestion(userId, formData);
       onQuestionAdded();
+      
+      // Reset form
+      setLeetcodeId("");
+      setNote("");
+      setProblemDetails(null);
+      
+      toast({
+        title: "Problem Added! 🎯",
+        description: problemDetails ? `${problemDetails.title} added to your daily queue.` : "Problem added to your daily queue.",
+      });
     });
+  };
+
+  const markAsSolved = async () => {
+    if (!problemDetails || !user?.uid) return;
+    
+    try {
+      // Add to solved collection
+      const response = await fetch('/api/solved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          problemId: problemDetails.questionFrontendId,
+          title: problemDetails.title,
+          difficulty: problemDetails.difficulty,
+          titleSlug: problemDetails.titleSlug,
+          topicTags: problemDetails.topics || []
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Marked as Solved! ✅",
+          description: `Great job solving ${problemDetails.title}!`,
+        });
+        
+        // Remove from daily questions since it's now solved
+        setLeetcodeId("");
+        setProblemDetails(null);
+        onQuestionAdded(); // Refresh the list
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to mark as solved. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -49,16 +126,35 @@ function AddDailyQuestionForm({
       <div className="space-y-4 py-4">
         <div className="space-y-2">
           <Label htmlFor="leetcodeId" className="text-sm font-medium">
-            LeetCode ID
+            LeetCode Problem ID
           </Label>
           <Input
             id="leetcodeId"
-            name="leetcodeId"
-            placeholder="e.g., 1 or 1. Two Sum"
+            value={leetcodeId}
+            onChange={(e) => setLeetcodeId(e.target.value)}
+            placeholder="e.g., 1"
             className="h-10"
             required
             disabled={isPending}
           />
+          {problemDetails && (
+            <div className="mt-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-medium text-green-800 dark:text-green-200">{problemDetails.title}</span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  problemDetails.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+                  problemDetails.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {problemDetails.difficulty}
+                </span>
+              </div>
+              <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                Topics: {problemDetails.topics?.join(', ') || 'N/A'}
+              </p>
+            </div>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="note" className="text-sm font-medium">
@@ -66,7 +162,8 @@ function AddDailyQuestionForm({
           </Label>
           <Input
             id="note"
-            name="note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
             placeholder="Quick note or reminder"
             className="h-10"
             disabled={isPending}
@@ -79,9 +176,21 @@ function AddDailyQuestionForm({
             Cancel
           </Button>
         </DialogClose>
+        {problemDetails && (
+          <Button 
+            type="button" 
+            onClick={markAsSolved}
+            variant="outline" 
+            disabled={isPending}
+            className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Mark as Solved
+          </Button>
+        )}
         <Button type="submit" disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Add Question
+          Add to Daily Queue
         </Button>
       </DialogFooter>
     </form>
@@ -175,21 +284,29 @@ export function DailyQuestions() {
                     {q.leetcodeId}
                   </div>
                   <div className="min-w-0 flex-1">
-                    {q.link ? (
-                      <Link
-                        href={q.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors"
-                      >
-                        Problem {q.leetcodeId}
-                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                      </Link>
-                    ) : (
-                      <span className="flex items-center gap-1.5 text-sm font-medium">
-                        Problem {q.leetcodeId}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {q.link ? (
+                        <Link
+                          href={q.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors"
+                        >
+                          {(q as any).title || `Problem ${q.leetcodeId}`}
+                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                        </Link>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-sm font-medium">
+                          {(q as any).title || `Problem ${q.leetcodeId}`}
+                        </span>
+                      )}
+                      {(q as any).source === 'ai-suggestion' && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
+                          <Zap className="h-3 w-3" />
+                          AI Pick
+                        </div>
+                      )}
+                    </div>
                     {q.note && (
                       <p className="text-xs text-muted-foreground truncate mt-0.5">
                         {q.note}
@@ -197,15 +314,48 @@ export function DailyQuestions() {
                     )}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleDelete(q.id)}
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                  <span className="sr-only">Delete</span>
-                </Button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/solved', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            userId: user?.uid,
+                            problemId: q.leetcodeId.toString(),
+                            title: (q as any).title || `Problem ${q.leetcodeId}`,
+                            difficulty: (q as any).difficulty || 'UNKNOWN',
+                            titleSlug: (q as any).titleSlug || q.leetcodeId.toString(),
+                            topicTags: []
+                          })
+                        });
+                        
+                        if (response.ok) {
+                          // Remove from daily questions
+                          await handleDelete(q.id);
+                        }
+                      } catch (error) {
+                        console.error('Error marking as solved:', error);
+                      }
+                    }}
+                  >
+                    <CheckCircle className="mr-1 h-3 w-3" />
+                    Done
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDelete(q.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>

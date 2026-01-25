@@ -46,6 +46,9 @@ export const COLLECTIONS = {
   PROBLEMS: 'problems',
   MEMORIES: 'memories',
   REVIEWS: 'reviews',
+  SOLVED: 'solved',
+  EMBEDDINGS: 'embeddings',
+  SNIPPETS: 'snippets',
 } as const;
 
 export default clientPromise;

@@ -1,19 +1,21 @@
-import { SnippetsList } from "@/components/snippets/snippets-list";
+import { EnhancedSnippets } from "@/components/snippets/enhanced-snippets";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SnippetsPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">Code Snippets</h1>
-        <p className="text-muted-foreground">
-          Save and organize your frequently used code patterns and algorithms.
-        </p>
-      </div>
-
-      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-        <SnippetsList />
+    <div className="container mx-auto py-6">
+      <Suspense fallback={
+        <div className="space-y-6">
+          <Skeleton className="h-16 w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-48 w-full" />
+            ))}
+          </div>
+        </div>
+      }>
+        <EnhancedSnippets />
       </Suspense>
     </div>
   );

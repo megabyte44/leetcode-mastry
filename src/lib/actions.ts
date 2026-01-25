@@ -76,12 +76,41 @@ export async function addDailyQuestion(userId: string, formData: FormData) {
   if (!leetcodeId) {
     return { error: "LeetCode ID is required." };
   }
-  const link = leetcodeId ? `https://leetcode.com/problems/${leetcodeId.split(' ')[0]}/` : undefined;
+  const title = formData.get("title") as string;
+  const difficulty = formData.get("difficulty") as string;
+  const titleSlug = formData.get("titleSlug") as string;
+  
+  const link = titleSlug ? `https://leetcode.com/problems/${titleSlug}/` : 
+               leetcodeId ? `https://leetcode.com/problems/${leetcodeId}/` : undefined;
 
   await addDoc(collection(db, "users", userId, "dailyQuestions"), {
     leetcodeId: parseInt(leetcodeId, 10),
+    ...(title && { title }),
+    ...(difficulty && { difficulty }),
+    ...(titleSlug && { titleSlug }),
     ...(link && { link }),
     note,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function addAISuggestedToDailyQuestion(
+  userId: string, 
+  problemId: string, 
+  title: string, 
+  reason: string, 
+  url: string
+) {
+  if (!problemId || !userId) {
+    return { error: "Problem ID and User ID are required." };
+  }
+
+  await addDoc(collection(db, "users", userId, "dailyQuestions"), {
+    leetcodeId: parseInt(problemId, 10),
+    link: url,
+    note: `🤖 AI Suggested: ${reason}`,
+    title,
+    source: 'ai-suggestion',
     createdAt: serverTimestamp(),
   });
 }
