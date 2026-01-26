@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter, usePathname } from "next/navigation";
-import { LogOut, User as UserIcon, ChevronLeft } from "lucide-react";
+import { useTheme } from "next-themes";
+import { LogOut, User as UserIcon, ChevronLeft, Moon, Sun, Monitor } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,6 +14,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -23,7 +28,6 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/topics": "Topics",
   "/snippets": "Code Snippets",
-  "/smart-review": "Smart Review",
   "/ai-suggester": "AI Suggester",
   "/solved": "Solved Problems",
   "/memory-bank": "Memory Bank",
@@ -33,6 +37,7 @@ export function AppHeader() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -94,6 +99,35 @@ export function AppHeader() {
                 <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="touch-manipulation">
+                {theme === 'dark' ? (
+                  <Moon className="mr-2 h-4 w-4" />
+                ) : theme === 'light' ? (
+                  <Sun className="mr-2 h-4 w-4" />
+                ) : (
+                  <Monitor className="mr-2 h-4 w-4" />
+                )}
+                <span>Theme</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem onClick={() => setTheme("light")} className="touch-manipulation">
+                    <Sun className="mr-2 h-4 w-4" />
+                    <span>Light</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")} className="touch-manipulation">
+                    <Moon className="mr-2 h-4 w-4" />
+                    <span>Dark</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")} className="touch-manipulation">
+                    <Monitor className="mr-2 h-4 w-4" />
+                    <span>System</span>
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleSignOut} 

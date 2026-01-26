@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Required for Genkit to work properly in production
+  serverExternalPackages: ['genkit', '@genkit-ai/google-genai'],
   images: {
     remotePatterns: [
       {

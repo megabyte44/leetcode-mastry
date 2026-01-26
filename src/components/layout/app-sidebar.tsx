@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Code2, LayoutDashboard, Brain, RotateCcw, Database, Settings, CheckCircle2, BookOpen } from "lucide-react";
+import { BrainCircuit, Code2, LayoutDashboard, Brain, Database, Settings, CheckCircle2, BookOpen } from "lucide-react";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -46,11 +46,6 @@ export function AppSidebar() {
       href: "/ai-suggester",
       label: "AI Suggester",
       icon: BrainCircuit,
-    },
-    {
-      href: "/smart-review",
-      label: "Smart Review",
-      icon: RotateCcw,
     },
     {
       href: "/memory-bank",

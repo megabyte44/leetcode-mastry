@@ -206,6 +206,7 @@ export function DailyQuestions() {
   const [questions, setQuestions] = useState<DailyQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setAddOpen] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   const fetchQuestions = () => {
     if (user) {
@@ -224,8 +225,23 @@ export function DailyQuestions() {
 
   const handleDelete = async (questionId: string) => {
     if (user) {
-      await deleteDailyQuestion(user.uid, questionId);
-      fetchQuestions();
+      // Optimistic update: immediately remove from UI
+      setQuestions(prev => prev.filter(q => q.id !== questionId));
+      setDeletingIds(prev => new Set(prev).add(questionId));
+      
+      try {
+        await deleteDailyQuestion(user.uid, questionId);
+      } catch (error) {
+        // If delete fails, refetch to restore state
+        console.error('Delete failed:', error);
+        fetchQuestions();
+      } finally {
+        setDeletingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(questionId);
+          return newSet;
+        });
+      }
     }
   };
 

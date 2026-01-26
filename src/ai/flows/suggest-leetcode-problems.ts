@@ -307,16 +307,24 @@ CRITICAL: Every reason MUST reference specific data from their profile - no gene
         return output!;
       } catch (error: any) {
         lastError = error;
+        console.error(`AI suggestion attempt ${attempt + 1} failed:`, error?.message || error);
+        
         // Check if it's a rate limit error (429)
         if (error?.status === 429 || error?.message?.includes('429') || error?.message?.includes('rate limit')) {
           console.log(`Rate limit hit, retrying with next API key (attempt ${attempt + 1}/${maxRetries})`);
           continue;
         }
+        
+        // Check for API key configuration errors
+        if (error?.message?.includes('API key') || error?.message?.includes('No Gemini')) {
+          throw new Error('AI service is not configured. Please contact the administrator to set up the Gemini API key.');
+        }
+        
         // For non-rate-limit errors, throw immediately
         throw error;
       }
     }
     
-    throw lastError || new Error('Failed after multiple retries');
+    throw lastError || new Error('AI service failed after multiple retries. Please try again later.');
   }
 );

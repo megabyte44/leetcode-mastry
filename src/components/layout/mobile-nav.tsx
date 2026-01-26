@@ -6,7 +6,6 @@ import {
   LayoutDashboard, 
   BookOpen, 
   Code2, 
-  RotateCcw, 
   BrainCircuit,
   MoreHorizontal
 } from "lucide-react";
@@ -24,11 +23,10 @@ const mainNavItems = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/topics", label: "Topics", icon: BookOpen },
   { href: "/snippets", label: "Snippets", icon: Code2 },
-  { href: "/smart-review", label: "Review", icon: RotateCcw },
+  { href: "/ai-suggester", label: "AI", icon: BrainCircuit },
 ];
 
 const moreNavItems = [
-  { href: "/ai-suggester", label: "AI Suggester", icon: BrainCircuit },
   { href: "/solved", label: "Solved Problems", icon: LayoutDashboard },
   { href: "/memory-bank", label: "Memory Bank", icon: LayoutDashboard },
 ];
